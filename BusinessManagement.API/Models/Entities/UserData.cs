@@ -1,6 +1,6 @@
-﻿namespace App.Models
+﻿namespace App.Models.Entities
 {
-    public class User
+    public class UserData
     {
         public int UserId { get; set; }
         public string Auth0Id { get; set; }

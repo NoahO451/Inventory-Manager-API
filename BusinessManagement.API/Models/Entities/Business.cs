@@ -1,4 +1,4 @@
-﻿namespace App.Models
+﻿namespace App.Models.Entities
 {
     public class Business
     {
