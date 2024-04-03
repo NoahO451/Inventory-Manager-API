@@ -1,6 +1,6 @@
-﻿namespace App.Models.Entities
+﻿namespace App.Models.DTO.Responses
 {
-    public class InventoryItem
+    public class GetAllInventoryItemsResponse
     {
         public long InventoryItemId { get; set; }
         public string Name { get; set; }
