@@ -17,9 +17,6 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.AddServerHeader = false;
 });
 
-// Add services to the container.
-builder.Services.AddScoped<IMessageService, MessageService>();
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -61,7 +58,6 @@ builder.Host.ConfigureServices((services) =>
             };
         })
 );
-
 
 // configure strongly typed settings object
 builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
