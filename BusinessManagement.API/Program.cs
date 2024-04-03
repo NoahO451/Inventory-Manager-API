@@ -1,18 +1,16 @@
+using App.Helpers;
 using App.Middlewares;
+using App.Models;
+using App.Repositories;
 using App.Services;
-using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.ConfigureAppConfiguration((configBuilder) =>
-{
-    configBuilder.Sources.Clear();
-    DotEnv.Load();
-    configBuilder.AddEnvironmentVariables();
-});
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
@@ -27,7 +25,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins(
-            builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL"))
+            builder.Configuration.GetValue<string>("Auth0Settings:CLIENT_ORIGIN_URL"))
             .WithHeaders(new string[] {
                 HeaderNames.ContentType,
                 HeaderNames.Authorization,
@@ -37,17 +35,24 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    // serialize enums as strings in api responses (e.g. Role)
+    x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+
+    // ignore omitted parameters on models to enable optional params (e.g. User update)
+    x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 
 builder.Host.ConfigureServices((services) =>
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
             var audience =
-                  builder.Configuration.GetValue<string>("AUTH0_AUDIENCE");
+                  builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_AUDIENCE");
 
             options.Authority =
-                  $"https://{builder.Configuration.GetValue<string>("AUTH0_DOMAIN")}/";
+                  $"https://{builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_DOMAIN")}/";
             options.Audience = audience;
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -57,7 +62,23 @@ builder.Host.ConfigureServices((services) =>
         })
 );
 
+
+// configure strongly typed settings object
+builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
+
+// configure DI for application services
+builder.Services.AddSingleton<DataContext>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+
 var app = builder.Build();
+
+// ensure database and tables exist
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+    await context.Init();
+}
 
 var requiredVars =
     new string[] {
@@ -69,7 +90,7 @@ var requiredVars =
 
 foreach (var key in requiredVars)
 {
-    var value = app.Configuration.GetValue<string>(key);
+    var value = app.Configuration.GetValue<string>($"Auth0Settings:{key}");
 
     if (value == "" || value == null)
     {
@@ -78,7 +99,7 @@ foreach (var key in requiredVars)
 }
 
 app.Urls.Add(
-    $"http://+:{app.Configuration.GetValue<string>("PORT")}");
+    $"http://+:{app.Configuration.GetValue<string>("Auth0Settings:PORT")}");
 
 app.UseErrorHandler();
 app.UseSecureHeaders();
