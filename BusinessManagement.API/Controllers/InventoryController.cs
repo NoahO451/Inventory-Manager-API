@@ -24,8 +24,6 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetInventoryItem([FromQuery]long id)
         {
-            // TODO: Check to see if the user has ownership/access rights to the business before allowing this call
-
             if (id < 1) 
             {
                 return BadRequest();
@@ -54,8 +52,6 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllInventoryItems(GetAllInventoryItemsRequest request)
         {
-            // TODO: Check to see if the user has ownership/access rights to the business before allowing this call
-
             if (!ModelState.IsValid)
             {
                 return BadRequest();
@@ -84,8 +80,6 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddInventoryItem(AddInventoryItemRequest request)
         {
-            // TODO: Check to see if the user has ownership/access rights to the business before allowing this call
-
             if (!ModelState.IsValid)
             {
                 return BadRequest();

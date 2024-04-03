@@ -1,7 +1,6 @@
 ﻿using App.Models;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
-using App.Models.Entities;
 using App.Repositories;
 using Azure;
 
@@ -105,6 +104,8 @@ namespace App.Services
         {
             try
             {
+                // VALIDATE REQUEST HERE
+
                 long inventoryId = await _inventoryRepository.CreateInventoryItem(request);
 
                 ApiResponse<long> apiResponse = new ApiResponse<long>() { Data = inventoryId };

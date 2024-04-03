@@ -2,7 +2,6 @@
 using App.Models;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
-using App.Models.Entities;
 using Azure.Core;
 using Dapper;
 
