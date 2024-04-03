@@ -25,12 +25,12 @@ CREATE TABLE user_data (
     role INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_login TIMESTAMP,
-    is_PremiumMember BOOLEAN NOT NULL,
-    is_Deleted BOOLEAN NOT NULL
+    is_premium_member BOOLEAN NOT NULL,
+    is_deleted BOOLEAN NOT NULL
 );
 
-CREATE TABLE inventory (
-    inventory_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE inventory_item (
+    inventory_item_id BIGSERIAL PRIMARY KEY,
     name TEXT,
     description TEXT,
     sku TEXT,
@@ -41,24 +41,32 @@ CREATE TABLE inventory (
     brand TEXT,
     model TEXT,
     quantity INTEGER,
-    reorder_auantity INTEGER,
+    reorder_quantity INTEGER, 
     location TEXT,
     expiration_date TIMESTAMP,
     category INTEGER,
+    packaging INTEGER, 
+    item_weight integer, -- weight is stored in grams 
     is_listed BOOLEAN,
     is_lot BOOLEAN,
     notes TEXT
 );
 
+CREATE TABLE business_inventory_item (
+    inventory_item_id BIGSERIAL, 
+    business_id INTEGER
+);
+
 CREATE TABLE user_business (
     user_id INTEGER,
     business_id INTEGER,
-    PRIMARY KEY (User_Id, Business_Id)
+    PRIMARY KEY (user_id, business_id)
 );
 
 CREATE TABLE business (
     business_id SERIAL PRIMARY KEY,
     business_name TEXT,
-    business_type TEXT,
+    business_type INTEGER,
+    business_industry TEXT,
     is_deleted BOOLEAN
 );
