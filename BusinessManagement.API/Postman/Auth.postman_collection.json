@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "622cea40-e9c2-4a09-8638-551e3f5c86c9",
+		"name": "Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16766477"
+	},
+	"item": [
+		{
+			"name": "Authenticate User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "grant_type",
+						"value": "client_credentials",
+						"type": "text"
+					},
+					{
+						"key": "client_id",
+						"value": "dbpHwtweVQWyFji9BCQjfmD6mI260bCu",
+						"type": "text"
+					},
+					{
+						"key": "client_secret",
+						"value": "citUoXQyw73mGVlZctPQgrHHiIdoSDH_XPMhechK9",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "audience",
+						"value": "https://dev-business-api.com",
+						"type": "text"
+					},
+					{
+						"key": "content-type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"client_id\": \"laQpfDUzyNUsF6IneoOdyMySKQb8jZ0t\",\r\n    \"client_secret\": \"citUoXQyw73mGVlZctPQgrHHiIdoSDH_XPMhechK9-7bqWH6WMOHRbQQrvUaEdEb\",\r\n    \"audience\": \"https://dev-business-api.com\",\r\n    \"grant_type\": \"client_credentials\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-1tpta51o17o23r4e.us.auth0.com/oauth/token",
+					"protocol": "https",
+					"host": [
+						"dev-1tpta51o17o23r4e",
+						"us",
+						"auth0",
+						"com"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

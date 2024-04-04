@@ -1,0 +1,163 @@
+{
+	"info": {
+		"_postman_id": "5556c46d-d03b-4976-8610-e6c47dd50697",
+		"name": "Inventory",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16766477"
+	},
+	"item": [
+		{
+			"name": "Add Inventory Item",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjEwNTYxMywiZXhwIjoxNzEyMTkyMDEzLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.cVWbhuQFeyzRMIHEoLVt8uzQ-uVzwO-1CwrnDnp0OsUpQAuqXqI1-3s3yAy9DTxcu6TO4FSzSLLKnBqR0Luz5zFkoP9jjWVn_WgOhMTq8k7Wpw9ioi1ROViLiElWzzGN6vnIL-Ve6BBnYeBbErbsD9J8JaaRnK4LJOP_P5_XLMhtHNNjXh9PW1CgnLu_WVf3rrOqHrBbm38-B0vZwDNoS-qpygyp3UY3OPWWxLJ1qYKrUHd38M319zO1Sq5GqsvCSsQonjGC7yT-1dV5K7SMW3J4WQjYy_qkFtIddx6LpPIIzMLA_4yQC2T4_EXru3OdyjVEKT7ZP7a1x414ZZyW7A",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Name\": \"Sample Item 1\",\r\n  \"Description\": \"Sample Description\",\r\n  \"SKU\": \"123456\",\r\n  \"Cost\": 10.99,\r\n  \"SerialNumber\": \"ABC123\",\r\n  \"PurchasedDate\": \"2024-04-01T08:00:00Z\",\r\n  \"Supplier\": \"Supplier Inc.\",\r\n  \"Brand\": \"Sample Brand\",\r\n  \"Model\": \"Sample Model\",\r\n  \"Quantity\": 10,\r\n  \"ReorderQuantity\": 5,\r\n  \"Location\": \"Warehouse A\",\r\n  \"ExpirationDate\": \"2025-04-01T08:00:00Z\",\r\n  \"Category\": 1,\r\n  \"Packaging\": 2,\r\n  \"ItemWeight\": 500,\r\n  \"IsListed\": true,\r\n  \"IsLot\": false,\r\n  \"Notes\": \"Sample notes\",\r\n  \"BusinessId\": 2,\r\n  \"UserId\": 2\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6060/api/inventory/add-inventory",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6060",
+					"path": [
+						"api",
+						"inventory",
+						"add-inventory"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Inventory Item",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjEwMjk0OSwiZXhwIjoxNzEyMTg5MzQ5LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.dM-wTOUhsdCt_eZShxpdSOMKf5RpPmR3K9yYMsRNkhYXdI-aWhg1z643K8T-uYragBuhJIWrV_Wj6UVULHXdGAE8i4zKFMYAe5QVLqfqSNEPVbQrsX5N7vCTWHQV7pX0PMZtb0s83e8tse4R_6mi1WUf8bbEqHn8Q_Z7gEiOxL0aEBn_85muVKiRxjTxCsHeK-wep99XifDDMm5lVfZIV2pVbowTecRFnzatEIvm0nUQDCwkKBL4G6W94KO_5kjW_GoA3vrbsU0cdG6disjudC7UqfI355Vgp4jrhUbdgL5YAgCy39-1Wszy_p8zC4c-KCLhQKSXGG5hlla8ch2Y2g",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6060/api/inventory/inventory-item?id=3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6060",
+					"path": [
+						"api",
+						"inventory",
+						"inventory-item"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Inventory Items",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjEwMjk0OSwiZXhwIjoxNzEyMTg5MzQ5LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.dM-wTOUhsdCt_eZShxpdSOMKf5RpPmR3K9yYMsRNkhYXdI-aWhg1z643K8T-uYragBuhJIWrV_Wj6UVULHXdGAE8i4zKFMYAe5QVLqfqSNEPVbQrsX5N7vCTWHQV7pX0PMZtb0s83e8tse4R_6mi1WUf8bbEqHn8Q_Z7gEiOxL0aEBn_85muVKiRxjTxCsHeK-wep99XifDDMm5lVfZIV2pVbowTecRFnzatEIvm0nUQDCwkKBL4G6W94KO_5kjW_GoA3vrbsU0cdG6disjudC7UqfI355Vgp4jrhUbdgL5YAgCy39-1Wszy_p8zC4c-KCLhQKSXGG5hlla8ch2Y2g",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"BusinessId\": 1,\r\n  \"UserId\": 1 \r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6060/api/inventory/inventory-items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6060",
+					"path": [
+						"api",
+						"inventory",
+						"inventory-items"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
