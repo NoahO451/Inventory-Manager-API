@@ -1,4 +1,5 @@
 ﻿using App.Models;
+using App.Models.DTO.Mappers;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Repositories;
@@ -9,8 +10,8 @@ namespace App.Services
     public interface IInventoryService
     {
         Task<GetInventoryItemResponse> GetInventoryItem(long id);
-        Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(GetAllInventoryItemsRequest request);
-        Task<ApiResponse<long>> AddInventoryItem(AddInventoryItemRequest request);
+        Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(int userId, int businessId);
+        Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
     }
 
     public class InventoryService : IInventoryService
@@ -58,10 +59,10 @@ namespace App.Services
             return response;
         }
 
-        public async Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(GetAllInventoryItemsRequest request)
+        public async Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(int userId, int businessId)
         {
 
-            List<InventoryItem> inventoryItems = await _inventoryRepository.RetrieveAllInventoryItems(request);
+            List<InventoryItem> inventoryItems = await _inventoryRepository.RetrieveAllInventoryItems(businessId);
 
             List<GetAllInventoryItemsResponse> response = new List<GetAllInventoryItemsResponse>();
 
@@ -100,17 +101,22 @@ namespace App.Services
             return response;
         }
 
-        public async Task<ApiResponse<long>> AddInventoryItem(AddInventoryItemRequest request)
+        public async Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request)
         {
             try
             {
-                // VALIDATE REQUEST HERE
+                // Does this user own or have permission to add items to this business? 
+                // Get the user and check to see if the request's businessid matches an id in their businesses collection
+                // Does the item have a name? 
+                // Does the item have a quantity
 
-                long inventoryId = await _inventoryRepository.CreateInventoryItem(request);
+                InventoryItem inventoryItem = InventoryItemMapper.FromRequest(request);
+             
+                await _inventoryRepository.CreateInventoryItem(inventoryItem);
 
-                ApiResponse<long> apiResponse = new ApiResponse<long>() { Data = inventoryId };
+                ApiResponse<Guid> apiResponse = new ApiResponse<Guid>() { Data = inventoryItem.InventoryItemUuid };
 
-                if (inventoryId != -1 && await _inventoryRepository.GetInventoryItem(inventoryId) != null)
+                if (await _inventoryRepository.GetInventoryItem(inventoryItem.InventoryItemUuid) != null)
                 {
                     apiResponse.Success = true;
                     return apiResponse;
@@ -121,7 +127,7 @@ namespace App.Services
             }
             catch (Exception)
             {
-                return new ApiResponse<long>() { Success = false};
+                return new ApiResponse<Guid>() { Success = false};
             }
         }
 

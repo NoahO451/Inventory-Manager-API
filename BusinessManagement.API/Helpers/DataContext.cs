@@ -19,6 +19,7 @@ namespace App.Helpers
             var connectionString = $"Host={_dbSettings.Server}; Database={_dbSettings.Database}; Username={_dbSettings.UserId}; Password={_dbSettings.Password};";
             return new NpgsqlConnection(connectionString);
         }
+
         public async Task Init()
         {
             // todo

@@ -50,7 +50,7 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllInventoryItems(GetAllInventoryItemsRequest request)
+        public async Task<IActionResult> GetAllInventoryItems([FromQuery] int userId, int businessId)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +59,7 @@ namespace App.Controllers
 
             try
             {
-                List<GetAllInventoryItemsResponse> inventoryItems = await _inventoryService.GetAllInventoryItems(request);
+                List<GetAllInventoryItemsResponse> inventoryItems = await _inventoryService.GetAllInventoryItems(userId, businessId);
 
                 if (inventoryItems == null) 
                 {
@@ -101,6 +101,5 @@ namespace App.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-
     }
 }

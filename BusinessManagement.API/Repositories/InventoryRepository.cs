@@ -9,9 +9,9 @@ namespace App.Repositories
 {
     public interface IInventoryRepository
     {
-        Task<InventoryItem> GetInventoryItem(long id);
-        Task<List<InventoryItem>> RetrieveAllInventoryItems(GetAllInventoryItemsRequest request);
-        Task<long> CreateInventoryItem(AddInventoryItemRequest request);
+        Task<InventoryItem> GetInventoryItem(Guid uuid);
+        Task<List<InventoryItem>> RetrieveAllInventoryItems(int businessId);
+        Task CreateInventoryItem(InventoryItem request);
     }
 
     public class InventoryRepository : IInventoryRepository
@@ -23,9 +23,9 @@ namespace App.Repositories
             _context = context;
         }
 
-        public async Task<InventoryItem> GetInventoryItem(long id)
+        public async Task<InventoryItem> GetInventoryItem(Guid uuid)
         {
-            InventoryItem result = new InventoryItem();
+            InventoryItem? result = null;
 
             using (var connection = _context.CreateConnection())
             {
@@ -33,7 +33,7 @@ namespace App.Repositories
 
                 string sql = """
                         SELECT 
-                        ii.inventory_item_id,
+                        ii.inventory_item_uuid,
                         ii.name,
                         ii.description,
                         ii.sku,
@@ -55,16 +55,16 @@ namespace App.Repositories
                         ii.notes
                     FROM 
                         inventory_item ii
-                    WHERE ii.inventory_item_id = @Id;
+                    WHERE ii.inventory_item_uuid = @Id;
                     """;
 
-                result = await connection.QuerySingleAsync<InventoryItem>(sql, new { Id = id });
+                result = await connection.QuerySingleAsync<InventoryItem>(sql, new { Id = uuid });
             }
 
             return result;
         }
 
-        public async Task<List<InventoryItem>> RetrieveAllInventoryItems(GetAllInventoryItemsRequest request)
+        public async Task<List<InventoryItem>> RetrieveAllInventoryItems(int businessId)
         {
             List<InventoryItem> inventoryItems = new List<InventoryItem>();
 
@@ -105,17 +105,15 @@ namespace App.Repositories
                     WHERE bii.business_id = @BusinessId;
                     """;
 
-                var result = await connection.QueryAsync<InventoryItem>(sql, new { BusinessId = request.BusinessId });
+                var result = await connection.QueryAsync<InventoryItem>(sql, new { BusinessId = businessId });
                 inventoryItems = result.ToList();
             }
 
             return inventoryItems;
         }
 
-        public async Task<long> CreateInventoryItem(AddInventoryItemRequest request)
+        public async Task CreateInventoryItem(InventoryItem request, Guid businessUuid)
         {
-            long inventoryItemId = -1;
-
             using (var connection = _context.CreateConnection())
             {
                 connection.Open();
@@ -123,25 +121,34 @@ namespace App.Repositories
                 using (var transaction = connection.BeginTransaction())
                 {
                     string insertInventoryItemSql = """
-                        INSERT INTO inventory_item (name, description, sku, cost, serial_number, purchased_date, supplier, brand, model, quantity, reorder_quantity, location, expiration_date, category, packaging, item_weight, is_listed, is_lot, notes)
-                        VALUES (@Name, @Description, @Sku, @Cost, @SerialNumber, @PurchasedDate, @Supplier, @Brand, @Model, @Quantity, @ReorderQuantity, @Location, @ExpirationDate, @Category, @Packaging, @ItemWeight, @IsListed, @IsLot, @Notes)
+                        INSERT INTO inventory_item (inventory_item_uuid, name, description, sku, cost, serial_number, purchased_date, supplier, brand, model, quantity, reorder_quantity, location, expiration_date, category, packaging, item_weight, is_listed, is_lot, notes)
+                        VALUES (@InventoryItemUuid, @Name, @Description, @Sku, @Cost, @SerialNumber, @PurchasedDate, @Supplier, @Brand, @Model, @Quantity, @ReorderQuantity, @Location, @ExpirationDate, @Category, @Packaging, @ItemWeight, @IsListed, @IsLot, @Notes)
                         RETURNING inventory_item_id; 
                         """;
 
-                    inventoryItemId = await connection.QueryFirstAsync<long>(insertInventoryItemSql, request);
+                    long inventoryItemId = await connection.QueryFirstAsync<long>(insertInventoryItemSql, request);
+
+                    // Because our join tables use the primary key of the table, we need top get the business' primary key
+                    // by selecting based on the GUID we are passed in.
+                    string getBusinessIdSQL = """
+                        SELECT business_id 
+                        FROM business b
+                        WHERE b.business_uuid = @BusinessId
+                        """;
+
+                    long businessId = await connection.QueryFirstAsync<int>(getBusinessIdSQL, businessUuid);
+
 
                     string insertBusinessInventoryItemSql = """
                         INSERT INTO business_inventory_item (inventory_item_id, business_id)
                         VALUES (@InventoryItemId, @BusinessId);
                         """;
 
-                    await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = request.BusinessId });
+                    await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
 
                     transaction.Commit();
                 }
             }
-
-            return inventoryItemId;
         }
     }
 }
