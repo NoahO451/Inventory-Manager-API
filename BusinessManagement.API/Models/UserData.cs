@@ -9,6 +9,7 @@
         public string LastName { get; set; }
         public string Email { get; set; }
         public int Role { get; set; }
+        public IReadOnlyCollection<string>? Businesses { get; private set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLogin { get; set; }
         public bool IsPremiumMember { get; set; }
