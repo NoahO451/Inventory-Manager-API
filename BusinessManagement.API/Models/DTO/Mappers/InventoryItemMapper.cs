@@ -15,7 +15,7 @@ namespace App.Models.DTO.Mappers
                 Guid.NewGuid(),
                 req.PurchaseDate,
                 req.ReorderQuantity,
-                req.CustomPackageId,
+                req.CustomPackageUuid,
                 req.Location,
                 req.IsListed,
                 req.IsLot,

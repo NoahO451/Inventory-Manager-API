@@ -2,6 +2,9 @@
 {
     public record Item
     {
+        // Empty constructor is needed for Dapper to work
+        public Item() { }
+        
         public Item(string name, string? description, decimal? cost, int quantity, DateTime? expirationDate, int? category, int? itemWeightG)
         {
             if (string.IsNullOrWhiteSpace(name))

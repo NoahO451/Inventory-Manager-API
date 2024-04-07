@@ -22,13 +22,8 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetInventoryItem([FromQuery]long id)
+        public async Task<IActionResult> GetInventoryItem([FromQuery]Guid id)
         {
-            if (id < 1) 
-            {
-                return BadRequest();
-            }
-
             try
             {
                 var inventoryItem = await _inventoryService.GetInventoryItem(id);
@@ -50,7 +45,7 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllInventoryItems([FromQuery] int userId, int businessId)
+        public async Task<IActionResult> GetAllInventoryItems([FromQuery] Guid userId, Guid businessId)
         {
             if (!ModelState.IsValid)
             {

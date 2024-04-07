@@ -16,12 +16,13 @@
         public string? Location { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public int? Category { get; set; }
-        public int? CustomPackageId { get; set; }
+        public Guid? CustomPackageUuid { get; set; }
         public int? ItemWeightG { get; set; } // weight is stored in grams in the database
         public bool IsListed { get; set; }
         public bool IsLot { get; set; }
         public string? Notes { get; set; }
-        public int BusinessId { get; set; }
-        public int UserId { get; set; }
+        public Guid BusinessUuid { get; set; }
+        public Guid UserUuid { get; set; }
+
     }
 }

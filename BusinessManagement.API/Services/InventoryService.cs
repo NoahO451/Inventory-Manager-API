@@ -9,8 +9,8 @@ namespace App.Services
 {
     public interface IInventoryService
     {
-        Task<GetInventoryItemResponse> GetInventoryItem(long id);
-        Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(int userId, int businessId);
+        Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
+        Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
     }
 
@@ -23,9 +23,9 @@ namespace App.Services
             _inventoryRepository = inventoryRepository;
         }
 
-        public async Task<GetInventoryItemResponse> GetInventoryItem(long id)
+        public async Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid)
         {
-            InventoryItem item = await _inventoryRepository.GetInventoryItem(id);
+            InventoryItem item = await _inventoryRepository.GetInventoryItem(uuid);
 
             if (item == null)
             {
@@ -34,32 +34,34 @@ namespace App.Services
 
             var response = new GetInventoryItemResponse
             {
-                InventoryItemId = item.InventoryItemId,
-                Name = item.Name,
-                Description = item.Description,
-                SKU = item.SKU,
-                Cost = item.Cost,
-                SerialNumber = item.SerialNumber,
-                PurchasedDate = item.PurchasedDate,
-                Supplier = item.Supplier,
-                Brand = item.Brand,
-                Model = item.Model,
-                Quantity = item.Quantity,
+                InventoryItemUuid = item.InventoryItemUuid,
+                PurchaseDate = item.PurchaseDate,
                 ReorderQuantity = item.ReorderQuantity,
                 Location = item.Location,
-                ExpirationDate = item.ExpirationDate,
-                Category = item.Category,
-                Packaging = item.Packaging,
-                ItemWeight = item.ItemWeight,
+                CustomPackageUuid = item.CustomPackageUuid,
                 IsListed = item.IsListed,
                 IsLot = item.IsLot,
-                Notes = item.Notes
+                Notes = item.Notes,
+
+                Name = item.Item.Name,
+                Description = item.Item.Description,
+                Cost = item.Item.Cost,
+                Quantity = item.Item.Quantity,
+                ExpirationDate = item.Item.ExpirationDate,
+                Category = item.Item.Category,
+                ItemWeightG = item.Item.ItemWeightG,
+
+                SKU = item.ItemDetail.SKU,
+                SerialNumber = item.ItemDetail.SerialNumber,
+                Supplier = item.ItemDetail.Supplier,
+                Brand = item.ItemDetail.Brand,
+                Model = item.ItemDetail.Model
             };
 
             return response;
         }
 
-        public async Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(int userId, int businessId)
+        public async Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId)
         {
 
             List<InventoryItem> inventoryItems = await _inventoryRepository.RetrieveAllInventoryItems(businessId);
@@ -75,23 +77,23 @@ namespace App.Services
             {
                 response.Add(new GetAllInventoryItemsResponse
                 {
-                    InventoryItemId = item.InventoryItemId,
-                    Name = item.Name,
-                    Description = item.Description,
-                    SKU = item.SKU,
-                    Cost = item.Cost,
-                    SerialNumber = item.SerialNumber,
-                    PurchasedDate = item.PurchasedDate,
-                    Supplier = item.Supplier,
-                    Brand = item.Brand,
-                    Model = item.Model,
-                    Quantity = item.Quantity,
+                    InventoryItemUuid = item.InventoryItemUuid,
+                    Name = item.Item.Name,
+                    Description = item.Item.Description,
+                    SKU = item.ItemDetail.SKU,
+                    Cost = item.Item.Cost,
+                    SerialNumber = item.ItemDetail.SerialNumber,
+                    PurchaseDate = item.PurchaseDate,
+                    Supplier = item.ItemDetail.Supplier,
+                    Brand = item.ItemDetail.Brand,
+                    Model = item.ItemDetail.Model,
+                    Quantity = item.Item.Quantity,
                     ReorderQuantity = item.ReorderQuantity,
                     Location = item.Location,
-                    ExpirationDate = item.ExpirationDate,
-                    Category = item.Category,
-                    Packaging = item.Packaging,
-                    ItemWeight = item.ItemWeight,
+                    ExpirationDate = item.Item.ExpirationDate,
+                    Category = item.Item.Category,
+                    CustomPackageUuid = item.CustomPackageUuid,
+                    ItemWeightG = item.Item.ItemWeightG,
                     IsListed = item.IsListed,
                     IsLot = item.IsLot,
                     Notes = item.Notes
@@ -105,14 +107,9 @@ namespace App.Services
         {
             try
             {
-                // Does this user own or have permission to add items to this business? 
-                // Get the user and check to see if the request's businessid matches an id in their businesses collection
-                // Does the item have a name? 
-                // Does the item have a quantity
-
                 InventoryItem inventoryItem = InventoryItemMapper.FromRequest(request);
-             
-                await _inventoryRepository.CreateInventoryItem(inventoryItem);
+
+                await _inventoryRepository.CreateInventoryItem(inventoryItem, request.BusinessUuid);
 
                 ApiResponse<Guid> apiResponse = new ApiResponse<Guid>() { Data = inventoryItem.InventoryItemUuid };
 
@@ -127,9 +124,8 @@ namespace App.Services
             }
             catch (Exception)
             {
-                return new ApiResponse<Guid>() { Success = false};
+                return new ApiResponse<Guid>() { Success = false };
             }
         }
-
     }
 }

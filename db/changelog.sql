@@ -36,19 +36,19 @@ CREATE TABLE inventory_item (
     name TEXT NOT NULL,
     description TEXT,
     sku TEXT,
-    cost NUMERIC(19,4),
+    cost INTEGER, -- stored in pennies
     serial_number TEXT,
     purchase_date TIMESTAMP,
     supplier TEXT,
     brand TEXT,
     model TEXT,
-    quantity INTEGER,
+    quantity INTEGER NOT NULL,
     reorder_quantity INTEGER, 
     location TEXT,
     expiration_date TIMESTAMP,
     category INTEGER,
-    packaging INTEGER, 
-    item_weight integer, -- weight is stored in grams 
+    custom_package_uuid UUID,
+    item_weight_g integer, -- weight is stored in grams 
     is_listed BOOLEAN NOT NULL,
     is_lot BOOLEAN NOT NULL,
     notes TEXT
@@ -56,7 +56,7 @@ CREATE TABLE inventory_item (
 
 CREATE TABLE business_inventory_item (
     inventory_item_id BIGSERIAL, 
-    business_id INTEGER
+    business_id INTEGER,
     PRIMARY KEY (inventory_item_id, business_id)
 );
 
@@ -82,30 +82,8 @@ CREATE TABLE custom_package (
     custom_package_id BIGSERIAL PRIMARY KEY,
     custom_package_uuid UUID NOT NULL,
     name TEXT NOT NULL, 
-    weight INTEGER, -- weight is stored in grams
+    weight_g INTEGER, -- weight is stored in grams
     width_cm INTEGER, -- package dimensions are stored in cm
     height_cm INTEGER, 
     length_cm INTEGER
 );
-
--- Add custom_package_id column to inventory_item table
-ALTER TABLE inventory_item
-ADD COLUMN custom_package_id BIGINT;
-
--- added an indication that item_weight is saved in grams
-ALTER TABLE inventory_item
-RENAME COLUMN item_weight TO item_weight_g;
-
--- Should probably force quantity to equal something
-ALTER TABLE inventory_item
-ALTER COLUMN quantity INTEGER NOT NULL;
-
--- Add foreign key constraint from inventory_item to custom_package
-ALTER TABLE inventory_item
-ADD CONSTRAINT fk_custom_package
-FOREIGN KEY (custom_package_id)
-REFERENCES custom_package(custom_package_id);
-
--- Drop Packaging column
-ALTER TABLE inventory_item
-DROP COLUMN packaging;
