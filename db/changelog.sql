@@ -87,3 +87,15 @@ CREATE TABLE custom_package (
     height_cm INTEGER, 
     length_cm INTEGER
 );
+
+--changeset Carl:4 context:#16
+--comment: Removed role from user data
+ALTER TABLE user_data
+DROP COLUMN role;
+
+-- Adding the IdP provider that the user signed up with
+ALTER TABLE user_data
+ADD COLUMN auth_provider TEXT NOT NULL;
+
+ALTER TABLE user_data
+DROP COLUMN username;

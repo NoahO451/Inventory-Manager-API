@@ -2,7 +2,7 @@
 {
     public record Name
     {
-        public Name() { }
+        private Name() { }
         public Name(string firstName, string lastName)
         {
             if (string.IsNullOrWhiteSpace(firstName))

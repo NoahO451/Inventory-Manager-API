@@ -1,8 +1,8 @@
 ﻿namespace App.Models.ValueObjects
 {
-    public class Email
+    public record Email
     {
-        public Email() {}
+        private Email() {}
         public Email(string emailAddress)
         {
             if (string.IsNullOrWhiteSpace(emailAddress)) 
