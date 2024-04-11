@@ -4,7 +4,7 @@ using System.Reflection;
 namespace App.Helpers
 {
     /// <summary>
-    /// Class for experimenting with reflection toautomatically flatten any object passed in. Does not currently work. 
+    /// Class for experimenting with reflection to automatically flatten any object passed in. Does not currently work. 
     /// </summary>
     public static class ObjectConverter
     {

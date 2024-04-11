@@ -45,28 +45,31 @@ namespace App.Repositories
                 // in the same order that they appear in the aggregate. 
                 string sql = """
                             SELECT 
-                            ii.inventory_item_uuid AS InventoryItemUuid,
-                            ii.purchase_date AS PurchaseDate,
-                            ii.reorder_quantity AS ReorderQuantity,
-                            ii.location,
-                            ii.custom_package_uuid AS CustomPackageUuid,
-                            ii.is_listed AS IsListed,
-                            ii.is_lot AS IsLOt,
-                            ii.notes,
+                            -- Inventory item NON-nested props:
+                                ii.inventory_item_uuid AS InventoryItemUuid,
+                                ii.purchase_date AS PurchaseDate,
+                                ii.reorder_quantity AS ReorderQuantity,
+                                ii.location,
+                                ii.custom_package_uuid AS CustomPackageUuid,
+                                ii.is_listed AS IsListed,
+                                ii.is_lot AS IsLOt,
+                                ii.notes,
 
-                            ii.name,
-                            ii.description,
-                            ii.cost,
-                            ii.quantity,
-                            ii.expiration_date AS ExpirationDate,
-                            ii.category,
-                            ii.item_weight_g AS ItemWeightG,
+                            -- Item props:
+                                ii.name,
+                                ii.description,
+                                ii.cost,
+                                ii.quantity,
+                                ii.expiration_date AS ExpirationDate,
+                                ii.category,
+                                ii.item_weight_g AS ItemWeightG,
 
-                            ii.sku,
-                            ii.serial_number AS SerialNumber,
-                            ii.supplier,
-                            ii.brand,
-                            ii.model
+                            -- ItemDetail props
+                                ii.sku,
+                                ii.serial_number AS SerialNumber,
+                                ii.supplier,
+                                ii.brand,
+                                ii.model
                         FROM 
                             inventory_item ii
                         WHERE ii.inventory_item_uuid = @Uuid;
@@ -77,7 +80,7 @@ namespace App.Repositories
                     sql, // pass in SQL query from above
                     (invItem, item, itemDetail) => // These are the three classes we're dealing with
                     {
-                        invItem.Item = item;
+                        invItem.Item = item; // error, Item is a private accessor and only available through constructor
                         invItem.ItemDetail = itemDetail;
                         return invItem;
                     },
