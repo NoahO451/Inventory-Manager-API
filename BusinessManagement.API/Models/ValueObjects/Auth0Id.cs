@@ -17,17 +17,20 @@
             if (string.IsNullOrWhiteSpace(id) || id.Length != 24)
                 throw new ArgumentException("Auth0 id is invalid", nameof(auth0UserId));
 
-            Auth0UserId = id;
-            AuthProvider = provider;
+            Auth0UserId = auth0UserId;
         }
 
         /// <summary>
-        /// // Includes the full IdP|1234567...
+        /// Return only the auth provider.
         /// </summary>
+        /// <returns>Provider name. Example: Auth0</returns>
+        public string GetAuth0Provider()
+        {
+            string[] parts = Auth0UserId.Split('|');
+
+            return parts[0];
+        }
+
         public string Auth0UserId { get; private set; }
-        /// <summary>
-        /// Only includes the digits after the IdP
-        /// </summary>
-        public string AuthProvider { get; private set; }
     }
 }
