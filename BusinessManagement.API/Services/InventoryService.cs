@@ -1,4 +1,5 @@
 ﻿using App.Models;
+using App.Models.DTO;
 using App.Models.DTO.Mappers;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
@@ -12,6 +13,7 @@ namespace App.Services
         Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
         Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
+        Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
     }
 
     public class InventoryService : IInventoryService
@@ -125,6 +127,31 @@ namespace App.Services
             catch (Exception)
             {
                 return new ApiResponse<Guid>() { Success = false };
+            }
+        }
+
+        public async Task<ServiceResult<bool>> RemovedItemResults(Guid uuid)
+        {
+            try
+            {
+                if (await _inventoryRepository.RemoveInventoryItem(uuid) == null)
+                {
+                    return ServiceResult<bool>.FailureResult("Item with this uuid not found.");
+                }
+
+                bool itemDeleted = await _inventoryRepository.RemoveInventoryItem(uuid);
+
+                if (itemDeleted)
+                {
+                    return ServiceResult<bool>.SuccessResult();
+                }
+
+                return ServiceResult<bool>.FailureResult("Failed to delete item.");
+
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete user", ex);
             }
         }
     }

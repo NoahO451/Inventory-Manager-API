@@ -17,6 +17,8 @@ namespace App.Repositories
         Task<InventoryItem> GetInventoryItem(Guid uuid);
         Task<List<InventoryItem>> RetrieveAllInventoryItems(Guid businessId);
         Task CreateInventoryItem(InventoryItem request, Guid businessUuid);
+        Task<bool> RemoveInventoryItem(Guid uuid);
+        Task<bool> UpdateInventoryItem(InventoryItem request, Guid uuid);
     }
 
     public class InventoryRepository : IInventoryRepository
@@ -223,6 +225,29 @@ namespace App.Repositories
                     transaction.Commit();
                 }
             }
+        }
+        /// <summary>
+        /// Removes one inventory item and returns true or false if the item was removed
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        public async Task<bool> RemoveInventoryItem(Guid uuid)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                string removeInventoryItemSql = """
+                    DELETE FROM inventory_item ii WHERE ii.inventory_item_uuid = @SelectedIIUuid
+                    """;
+
+                var rowsRemoved = await connection.ExecuteAsync(removeInventoryItemSql, param: new { InventoryItemId = uuid });
+
+                if (rowsRemoved > 0) { return true; } else { return false; }
+            }
+        }
+
+        public Task<bool> UpdateInventoryItem(InventoryItem request, Guid uuid)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

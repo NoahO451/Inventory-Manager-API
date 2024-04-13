@@ -22,7 +22,7 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetInventoryItem([FromQuery]Guid id)
+        public async Task<IActionResult> GetInventoryItem([FromQuery] Guid id)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace App.Controllers
             {
                 List<GetAllInventoryItemsResponse> inventoryItems = await _inventoryService.GetAllInventoryItems(userId, businessId);
 
-                if (inventoryItems == null) 
+                if (inventoryItems == null)
                 {
                     return BadRequest();
                 }
@@ -90,6 +90,29 @@ namespace App.Controllers
                 }
 
                 return CreatedAtAction(nameof(AddInventoryItem), new { id = response.Data });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpDelete("remove-inventory-item")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RemoveInventoryItem([FromQuery] Guid uuid)
+        {
+            try
+            {
+                var response = await _inventoryService.RemovedItemResults(uuid);
+
+                if (response == null || !response.Success) 
+                { 
+                    return BadRequest(response?.ErrorMessage);
+                }
+
+                return Ok();
             }
             catch (Exception)
             {
