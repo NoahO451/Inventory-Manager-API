@@ -1,4 +1,5 @@
 ﻿using App.Models;
+using App.Models.DTO;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Models.ValueObjects;
@@ -9,16 +10,21 @@ namespace App.Services
     public interface IUserService
     {
         Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest request);
-        Task<ApiResponse<GetUserResponse>> GetUser(Guid uuid);
+        Task<ServiceResult<GetUserResponse>> GetUser(Guid uuid);
+        Task<ServiceResult<UpdateUserDemographicsResponse>> UpdateUserDemographics(UpdateUserDemographicsRequest request);
+        Task<ServiceResult<bool>> MarkUserAsDeleted(Guid uuid);
 
     }
 
     public class UserService : IUserService
     {
         private IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+
+        private IAuth0Service _auth0Service;
+        public UserService(IUserRepository userRepository, IAuth0Service auth0Service)
         {
             _userRepository = userRepository;
+            _auth0Service = auth0Service;
         }
 
         public async Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest req)
@@ -73,16 +79,13 @@ namespace App.Services
             }
         }
 
-        public async Task<ApiResponse<GetUserResponse>> GetUser(Guid uuid)
+        public async Task<ServiceResult<GetUserResponse>> GetUser(Guid uuid)
         {
-            UserData user = await _userRepository.GetUserByUuid(uuid);
-            ApiResponse<GetUserResponse> apiResponse = new ApiResponse< GetUserResponse>();
+            UserData? user = await _userRepository.GetUserByUuid(uuid);
 
-            if (user == null)
+            if (user == null || user.IsDeleted)
             {
-                apiResponse.Success = false;
-                apiResponse.Message = "Error getting the user.";
-                return apiResponse;
+                return ServiceResult<GetUserResponse>.FailureResult("Error getting the user.");
             }
 
             var userResponse = new GetUserResponse()
@@ -97,11 +100,95 @@ namespace App.Services
                 IsDeleted = user.IsDeleted
             };
 
-            apiResponse.Success = true;
-            apiResponse.Data = userResponse;
+            return ServiceResult<GetUserResponse>.SuccessResult(userResponse);
+        }
 
-            return apiResponse;
+        public async Task<ServiceResult<UpdateUserDemographicsResponse>> UpdateUserDemographics(UpdateUserDemographicsRequest req)
+        {
+            try
+            {
+                UserData? user = await _userRepository.GetUserByUuid(req.UserUuid);
 
+                if (user == null)
+                {
+                    return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("User with this uuid not found.");
+                }
+
+                bool updateRequired = false;
+
+                string? previousEmail = null;
+
+                if (user.Name.FirstName != req.FirstName || user.Name.LastName != req.LastName)
+                {
+                    user.SetName(req.FirstName, req.LastName);
+                    updateRequired = true;
+                }
+
+                if (user.Email.EmailAddress != req.EmailAddress)
+                {
+                    ServiceResult<string> auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, req.EmailAddress);
+
+                    if (!auth0UpdateResult.Success)
+                    {
+                        return ServiceResult<UpdateUserDemographicsResponse>.FailureResult(auth0UpdateResult.ErrorMessage ?? "Failed to update Auth0 email.");
+                    }
+
+                    user.SetEmail(req.EmailAddress);
+                    updateRequired = true;
+                }
+
+                if (updateRequired)
+                {
+                    bool userUpdated = await _userRepository.UpdateUserDemographics(user);
+
+                    if (!userUpdated)
+                    {
+                        // If we have a previous email value, rollback Auth0 email to the previous one to keep it in sync with our database's value 
+                        if (!string.IsNullOrWhiteSpace(previousEmail))
+                        {
+                            ServiceResult<string> auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, previousEmail);
+                        }
+                        return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("User database update failed, Auth0 changes rolled back.");
+                    }
+                }
+
+                UpdateUserDemographicsResponse userResponse = new UpdateUserDemographicsResponse() 
+                {
+                    FirstName = user.Name.FirstName,
+                    LastName = user.Name.LastName,
+                    EmailAddress = user.Email.EmailAddress
+                };
+
+                return ServiceResult<UpdateUserDemographicsResponse>.SuccessResult(userResponse);
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("Exception thrown, user update failed", ex);
+            }
+        }
+
+        public async Task<ServiceResult<bool>> MarkUserAsDeleted(Guid uuid)
+        {
+            try
+            {
+                if (await _userRepository.GetUserByUuid(uuid) == null)
+                {
+                    return ServiceResult<bool>.FailureResult("User with this uuid not found.");
+                }
+
+                bool userSetDeleted = await _userRepository.MarkUserAsDeleted(uuid);
+
+                if (userSetDeleted)
+                {
+                    return ServiceResult<bool>.SuccessResult();
+                }
+
+                return ServiceResult<bool>.FailureResult("Failed to delete user.");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete user", ex);
+            }
         }
     }
 }

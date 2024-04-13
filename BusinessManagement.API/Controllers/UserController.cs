@@ -41,22 +41,71 @@ namespace App.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{uuid}")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUser(Guid uuid)
         {
             try
             {
-                ApiResponse<GetUserResponse> response = await _userService.GetUser(uuid);
+                var response = await _userService.GetUser(uuid);
 
                 if (response == null || !response.Success)
                 {
-                    return BadRequest(response.Message);
+                    return BadRequest(response?.ErrorMessage);
                 }
 
                 return Ok(response.Data);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [Authorize]
+        [HttpPatch("update-user")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateUserDemographics(UpdateUserDemographicsRequest request)
+        {
+            try
+            {
+                var response = await _userService.UpdateUserDemographics(request);
+
+                if (response == null || !response.Success)
+                {
+                    return BadRequest(response?.ErrorMessage);
+                }
+
+                return Ok(response.Data);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [Authorize]
+        [HttpPatch("delete-user/{uuid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> MarkUserAsDeleted([FromRoute] Guid uuid)
+        {
+            try
+            {
+                var response = await _userService.MarkUserAsDeleted(uuid);
+
+                if (response == null || !response.Success)
+                {
+                    return BadRequest(response?.ErrorMessage);
+                }
+
+                return Ok();
             }
             catch (Exception)
             {

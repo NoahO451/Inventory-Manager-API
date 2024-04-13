@@ -2,15 +2,17 @@
 using App.Models;
 using App.Models.ValueObjects;
 using Dapper;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace App.Repositories
 {
     public interface IUserRepository
     {
         Task<bool> CreateNewUser(UserData user);
-        Task<UserData> GetUserByUuid(Guid uuid);
-        
-
+        Task<UserData?> GetUserByUuid(Guid uuid);
+        Task<bool> UpdateUserDemographics(UserData user);
+        Task<bool> MarkUserAsDeleted(Guid uuid);
     }
 
     public class UserRepository : IUserRepository
@@ -39,12 +41,11 @@ namespace App.Repositories
                     LastLogin = user.LastLogin,
                     IsPremiumMember = user.IsPremiumMember,
                     IsDeleted = user.IsDeleted,
-                    AuthProvider = user.Auth0Id.AuthProvider
                 };
 
                 string sql = """
-                    INSERT INTO user_data (user_uuid, auth0_id, first_name, last_name, email, created_at, last_login, is_premium_member, is_deleted, auth_provider) 
-                    VALUES (@UserUuid, @Auth0Id, @FirstName, @LastName, @Email, @CreatedAt, @LastLogin, @IsPremiumMember, @IsDeleted, @AuthProvider);
+                    INSERT INTO user_data (user_uuid, auth0_id, first_name, last_name, email, created_at, last_login, is_premium_member, is_deleted) 
+                    VALUES (@UserUuid, @Auth0Id, @FirstName, @LastName, @Email, @CreatedAt, @LastLogin, @IsPremiumMember, @IsDeleted);
                     """;
 
                 affectedRows = await connection.ExecuteAsync(sql, parameters);
@@ -59,7 +60,7 @@ namespace App.Repositories
             return true;
         }
 
-        public async Task<UserData> GetUserByUuid(Guid uuid)
+        public async Task<UserData?> GetUserByUuid(Guid uuid)
         {
             using (var connection = _context.CreateConnection())
             {
@@ -72,7 +73,6 @@ namespace App.Repositories
                         is_deleted AS IsDeleted,
 
                         auth0_id AS Auth0UserId,
-                        auth_provider AS AuthProvider,
 
                         first_name AS FirstName,
                         last_name AS LastName,
@@ -83,25 +83,79 @@ namespace App.Repositories
                     WHERE user_uuid = @UserUuid;                    
                     """;
 
-                var test = await connection.QueryAsync<UserData, Auth0Id, Name, Email, UserData>(
-                    sql, 
+                var user = await connection.QueryAsync<UserData, Auth0Id, Name, Email, UserData>(
+                    sql,
                     (userData, auth0Id, name, email) =>
                     {
-                        string fullAuth0Id = $"{auth0Id.AuthProvider}|{auth0Id.Auth0UserId}";
-
-                        userData.SetAuth0Id(fullAuth0Id);
+                        userData.SetAuth0Id(auth0Id.Auth0UserId);
                         userData.SetName(name.FirstName, name.LastName);
                         userData.SetEmail(email.EmailAddress);
 
                         return userData;
-                    }, 
-                    new { UserUuid = uuid }, 
+                    },
+                    new { UserUuid = uuid },
                     splitOn: "Auth0UserId,FirstName,EmailAddress"
                     );
 
-                return test.FirstOrDefault();
+                return user?.FirstOrDefault();
             }
         }
 
+        public async Task<bool> UpdateUserDemographics(UserData user)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                string sql = """
+                    UPDATE 
+                        user_data
+                    SET 
+                        first_name = @FirstName, 
+                        last_name = @LastName, 
+                        email = @EmailAddress
+                    WHERE 
+                        user_uuid = @Uuid
+                    """;
+
+                var parameters = new
+                {
+                    Uuid = user.UserUuid,
+                    FirstName = user.Name.FirstName,
+                    LastName = user.Name.LastName,
+                    EmailAddress = user.Email.EmailAddress
+                };
+
+                int rowsUpdated = await connection.ExecuteAsync(sql, parameters);
+
+                if (rowsUpdated > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        public async Task<bool> MarkUserAsDeleted(Guid uuid)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                string sql = """
+                    UPDATE 
+                        user_data
+                    SET 
+                        is_deleted = true
+                    WHERE user_uuid = @UserUuid;
+                    """;
+
+                int rowsUpdated = await connection.ExecuteAsync(sql, new { UserUuid = uuid });
+
+                if (rowsUpdated > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
     }
 }
