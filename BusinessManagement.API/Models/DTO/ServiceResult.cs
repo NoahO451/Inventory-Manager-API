@@ -53,4 +53,44 @@
             return new ServiceResult<T> { Success = false, ErrorMessage = errorMessage, Exception = ex};
         }
     }
+
+    /// <summary>
+    /// Returns the results of a service to its calling method
+    /// </summary>
+    public class ServiceResult
+    {
+        public bool Success { get; set; }
+        public string? ErrorMessage { get; set; }
+        public Exception? Exception { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of ServiceResult for successful results 
+        /// </summary>
+        /// <returns>New ServiceResult with only success true</returns>
+        public static ServiceResult SuccessResult()
+        {
+            return new ServiceResult { Success = true };
+        }
+
+        /// <summary>
+        /// Creates a new instance of ServiceResult for failure results, along with error message
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        /// <returns>New ServiceResult with success false and an error message</returns>
+        public static ServiceResult FailureResult(string errorMessage)
+        {
+            return new ServiceResult { Success = false, ErrorMessage = errorMessage };
+        }
+
+        /// <summary>
+        /// Creates a new instance of ServiceResult for failure results, along with return data, exception message
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        /// <param name="ex"></param>
+        /// <returns>New ServiceResult</returns>
+        public static ServiceResult FailureResult(string errorMessage, Exception ex)
+        {
+            return new ServiceResult { Success = false, ErrorMessage = errorMessage, Exception = ex };
+        }
+    }
 }
