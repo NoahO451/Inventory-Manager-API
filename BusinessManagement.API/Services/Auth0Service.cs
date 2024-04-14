@@ -7,11 +7,11 @@ namespace App.Services
 {
     public interface IAuth0Service
     {
-        Task<ServiceResult<string>> UpdateAuth0UserEmail(string auth0Id, string emailAddress);
+        Task<ServiceResult> UpdateAuth0UserEmail(string auth0Id, string emailAddress);
     }
 
     /// <summary>
-    /// This service handles calls to Auth0s APIs for updating users
+    /// Handles calls to Auth0s APIs
     /// </summary>
     public class Auth0Service : IAuth0Service
     {
@@ -27,12 +27,12 @@ namespace App.Services
         }
         
         /// <summary>
-        /// Updates user's Auth0 email
+        /// Updates user's Auth0 email. Intended for use while updating a user's email in our database.
         /// </summary>
         /// <param name="fullAuth0Id"></param>
         /// <param name="emailAddress"></param>
         /// <returns></returns>
-        public async Task<ServiceResult<string>> UpdateAuth0UserEmail(string fullAuth0Id, string emailAddress)
+        public async Task<ServiceResult> UpdateAuth0UserEmail(string fullAuth0Id, string emailAddress)
         {
             try
             {
@@ -40,14 +40,14 @@ namespace App.Services
 
                 if (string.IsNullOrWhiteSpace(token))
                 {
-                    return ServiceResult<string>.FailureResult("Auth0 management JWT null or whiteSpace.");
+                    return ServiceResult.FailureResult("Auth0 management JWT null or whiteSpace.");
                 }
 
                 Auth0Settings? settings = _configuration.GetSection("Auth0Settings").Get<Auth0Settings>();
 
                 if (settings == null)
                 {
-                    return ServiceResult<string>.FailureResult("Auth0 configuration settings null or whiteSpace.");
+                    return ServiceResult.FailureResult("Auth0 configuration settings null or whiteSpace.");
                 }
 
                 var request = new HttpRequestMessage(HttpMethod.Patch, $"{api_version}/users/{fullAuth0Id}");
@@ -60,14 +60,14 @@ namespace App.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return ServiceResult<string>.SuccessResult();
+                    return ServiceResult.SuccessResult();
                 }
 
-                return ServiceResult<string>.FailureResult("Failed to update auth0 user email.");
+                return ServiceResult.FailureResult("Failed to update auth0 user email.");
             }
             catch (Exception ex)
             {
-                return ServiceResult<string>.FailureResult("Exception updating Auth0 user email", ex);
+                return ServiceResult.FailureResult("Exception updating Auth0 user email", ex);
             }
         }
 
@@ -77,11 +77,18 @@ namespace App.Services
         /// <returns>JWT token</returns>
         private async Task<string?> GenerateManagementToken()
         {
+            Auth0Settings? settings = _configuration.GetSection("Auth0Settings").Get<Auth0Settings>();
+            string? clientId = _configuration.GetValue<string>("ClientId");
+            string? clientSecret = _configuration.GetValue<string>("ClientSecret");
+
+            if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
+                return null;
+
             string path = "/oauth/token";
 
             var request = new HttpRequestMessage(HttpMethod.Post, path);
             request.Headers.Add("Accept", "application/json");
-            var jsonContent = "{\"client_id\":\"3pN4jYpeLjWHy1dxN7iy6EaDqrvK9QMK\",\"client_secret\":\"6oaSLf9hZkwZUzaQ60fBIzBI84REwWiNQHL4Q_cZ2Y7Kht0i89agKPNXOkZg7zDw\",\"audience\":\"https://dev-1tpta51o17o23r4e.us.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}";
+            var jsonContent = $"{{\"client_id\":\"{clientId}\",\"client_secret\":\"{clientSecret}\",\"audience\":\"https://dev-1tpta51o17o23r4e.us.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}}";
             var content = new StringContent(jsonContent, null, "application/json");
 
             request.Content = content;

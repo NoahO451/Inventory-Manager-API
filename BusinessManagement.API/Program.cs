@@ -1,15 +1,10 @@
 using App.Helpers;
 using App.Middlewares;
-using App.Models;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -2,8 +2,6 @@
 using App.Models;
 using App.Models.ValueObjects;
 using Dapper;
-using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace App.Repositories
 {
@@ -15,6 +13,9 @@ namespace App.Repositories
         Task<bool> MarkUserAsDeleted(Guid uuid);
     }
 
+    /// <summary>
+    /// Handles database queries for user entities
+    /// </summary>
     public class UserRepository : IUserRepository
     {
         private DataContext _context;
@@ -24,10 +25,13 @@ namespace App.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Creates a new user. Intended for use immediately after a user's Auth0 signup is complete.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<bool> CreateNewUser(UserData user)
         {
-            int affectedRows = 0;
-
             using (var connection = _context.CreateConnection())
             {
                 var parameters = new
@@ -48,18 +52,22 @@ namespace App.Repositories
                     VALUES (@UserUuid, @Auth0Id, @FirstName, @LastName, @Email, @CreatedAt, @LastLogin, @IsPremiumMember, @IsDeleted);
                     """;
 
-                affectedRows = await connection.ExecuteAsync(sql, parameters);
+                int affectedRows = await connection.ExecuteAsync(sql, parameters);
 
-            }
+                if (affectedRows > 0)
+                {
+                    return true;
+                }
 
-            if (affectedRows == 0)
-            {
                 return false;
             }
-
-            return true;
         }
 
+        /// <summary>
+        /// Get user by uuid from the database
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         public async Task<UserData?> GetUserByUuid(Guid uuid)
         {
             using (var connection = _context.CreateConnection())
@@ -101,6 +109,11 @@ namespace App.Repositories
             }
         }
 
+        /// <summary>
+        /// Update user demographic information in database
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<bool> UpdateUserDemographics(UserData user)
         {
             using (var connection = _context.CreateConnection())
@@ -135,6 +148,11 @@ namespace App.Repositories
             }
         }
 
+        /// <summary>
+        /// Set a user's IsDeleted flag to true
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         public async Task<bool> MarkUserAsDeleted(Guid uuid)
         {
             using (var connection = _context.CreateConnection())
@@ -144,7 +162,8 @@ namespace App.Repositories
                         user_data
                     SET 
                         is_deleted = true
-                    WHERE user_uuid = @UserUuid;
+                    WHERE 
+                        user_uuid = @UserUuid;
                     """;
 
                 int rowsUpdated = await connection.ExecuteAsync(sql, new { UserUuid = uuid });

@@ -12,8 +12,7 @@ namespace App.Services
         Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest request);
         Task<ServiceResult<GetUserResponse>> GetUser(Guid uuid);
         Task<ServiceResult<UpdateUserDemographicsResponse>> UpdateUserDemographics(UpdateUserDemographicsRequest request);
-        Task<ServiceResult<bool>> MarkUserAsDeleted(Guid uuid);
-
+        Task<ServiceResult> MarkUserAsDeleted(Guid uuid);
     }
 
     public class UserService : IUserService
@@ -33,8 +32,6 @@ namespace App.Services
             {
                 Guid NewUserUuid = Guid.NewGuid();
 
-                // Map the request to a new UserData model. The model validates itself, so any issues with the 
-                // request (invalid username, invalid name, etc.) should be caught here. 
                 UserData newUser = new UserData(
                     NewUserUuid,
                     new Auth0Id(req.FullAuth0Id),
@@ -126,7 +123,7 @@ namespace App.Services
 
                 if (user.Email.EmailAddress != req.EmailAddress)
                 {
-                    ServiceResult<string> auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, req.EmailAddress);
+                    ServiceResult auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, req.EmailAddress);
 
                     if (!auth0UpdateResult.Success)
                     {
@@ -146,7 +143,7 @@ namespace App.Services
                         // If we have a previous email value, rollback Auth0 email to the previous one to keep it in sync with our database's value 
                         if (!string.IsNullOrWhiteSpace(previousEmail))
                         {
-                            ServiceResult<string> auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, previousEmail);
+                            ServiceResult auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, previousEmail);
                         }
                         return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("User database update failed, Auth0 changes rolled back.");
                     }
@@ -167,27 +164,22 @@ namespace App.Services
             }
         }
 
-        public async Task<ServiceResult<bool>> MarkUserAsDeleted(Guid uuid)
+        public async Task<ServiceResult> MarkUserAsDeleted(Guid uuid)
         {
             try
             {
-                if (await _userRepository.GetUserByUuid(uuid) == null)
-                {
-                    return ServiceResult<bool>.FailureResult("User with this uuid not found.");
-                }
-
                 bool userSetDeleted = await _userRepository.MarkUserAsDeleted(uuid);
 
                 if (userSetDeleted)
                 {
-                    return ServiceResult<bool>.SuccessResult();
+                    return ServiceResult.SuccessResult();
                 }
 
-                return ServiceResult<bool>.FailureResult("Failed to delete user.");
+                return ServiceResult.FailureResult("Failed to delete user.");
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete user", ex);
+                return ServiceResult.FailureResult("Exception thrown, failed to delete user", ex);
             }
         }
     }
