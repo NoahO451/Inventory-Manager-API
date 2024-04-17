@@ -134,11 +134,6 @@ namespace App.Services
         {
             try
             {
-                if (await _inventoryRepository.RemoveInventoryItem(uuid) == null)
-                {
-                    return ServiceResult<bool>.FailureResult("Item with this uuid not found.");
-                }
-
                 bool itemDeleted = await _inventoryRepository.RemoveInventoryItem(uuid);
 
                 if (itemDeleted)
@@ -151,7 +146,7 @@ namespace App.Services
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete user", ex);
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete item", ex);
             }
         }
     }

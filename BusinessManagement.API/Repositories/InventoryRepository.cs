@@ -239,7 +239,7 @@ namespace App.Repositories
                     DELETE FROM inventory_item ii WHERE ii.inventory_item_uuid = @SelectedIIUuid
                     """;
 
-                var rowsRemoved = await connection.ExecuteAsync(removeInventoryItemSql, param: new { InventoryItemId = uuid });
+                var rowsRemoved = await connection.ExecuteAsync(removeInventoryItemSql, param: new { SelectedIIUuid = uuid });
 
                 if (rowsRemoved > 0) { return true; } else { return false; }
             }
