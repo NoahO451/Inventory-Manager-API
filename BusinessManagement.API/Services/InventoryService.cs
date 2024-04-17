@@ -11,6 +11,11 @@ namespace App.Services
     {
         Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
         Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
+        /// <summary>
+        /// Insert a single inventory item into the database.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
     }
 
@@ -103,6 +108,11 @@ namespace App.Services
             return response;
         }
 
+        /// <summary>
+        /// Insert a single inventory item into the database.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request)
         {
             try

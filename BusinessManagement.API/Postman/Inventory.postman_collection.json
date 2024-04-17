@@ -17,7 +17,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjEwNTYxMywiZXhwIjoxNzEyMTkyMDEzLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.cVWbhuQFeyzRMIHEoLVt8uzQ-uVzwO-1CwrnDnp0OsUpQAuqXqI1-3s3yAy9DTxcu6TO4FSzSLLKnBqR0Luz5zFkoP9jjWVn_WgOhMTq8k7Wpw9ioi1ROViLiElWzzGN6vnIL-Ve6BBnYeBbErbsD9J8JaaRnK4LJOP_P5_XLMhtHNNjXh9PW1CgnLu_WVf3rrOqHrBbm38-B0vZwDNoS-qpygyp3UY3OPWWxLJ1qYKrUHd38M319zO1Sq5GqsvCSsQonjGC7yT-1dV5K7SMW3J4WQjYy_qkFtIddx6LpPIIzMLA_4yQC2T4_EXru3OdyjVEKT7ZP7a1x414ZZyW7A",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjc5OTI0MiwiZXhwIjoxNzEyODg1NjQyLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.fplwQdxE4vrI2n6xwTjv3m0xnl6gu-fhOAzdJjleG3V0c5Zt7XjDGlC9P-hQK7AAr9CIe2QeJC9sClipD1DEX1fNDHMz5MQ-DCynAuC7ARFJgC8VsorJw4FgTtB8eEozli-0DyDFluXw_WHC9AqXlbVGzaSJR_H5ACXUFH12gL3xps5_Fbl_F2MlHkqtunNRJxfJdRmCB6rt_JlmgOovoEs-fmhD47CAjGfl_Dx_pFvxiOarLdNhFFlM5BdGWFw7X9PE4fO4vIvThZ2Hwm-zKFRZWPB0-43oNVPtL1qjqjl2DnORsVUplMHDbh3L_i5q9r0ZeE9WPoVFt9MYXulI1Q",
 							"type": "string"
 						}
 					]
@@ -32,7 +32,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"Name\": \"Sample Item 1\",\r\n  \"Description\": \"Sample Description\",\r\n  \"SKU\": \"123456\",\r\n  \"Cost\": 10.99,\r\n  \"SerialNumber\": \"ABC123\",\r\n  \"PurchasedDate\": \"2024-04-01T08:00:00Z\",\r\n  \"Supplier\": \"Supplier Inc.\",\r\n  \"Brand\": \"Sample Brand\",\r\n  \"Model\": \"Sample Model\",\r\n  \"Quantity\": 10,\r\n  \"ReorderQuantity\": 5,\r\n  \"Location\": \"Warehouse A\",\r\n  \"ExpirationDate\": \"2025-04-01T08:00:00Z\",\r\n  \"Category\": 1,\r\n  \"Packaging\": 2,\r\n  \"ItemWeight\": 500,\r\n  \"IsListed\": true,\r\n  \"IsLot\": false,\r\n  \"Notes\": \"Sample notes\",\r\n  \"BusinessId\": 2,\r\n  \"UserId\": 2\r\n}\r\n",
+					"raw": "{\r\n  \"Name\": \"Sample Item 1\",\r\n  \"Description\": \"Sample Description\",\r\n  \"SKU\": \"123456\",\r\n  \"Cost\": 10.99,\r\n  \"SerialNumber\": \"ABC123\",\r\n  \"PurchaseDate\": \"2024-04-01T08:00:00Z\",\r\n  \"Supplier\": \"Supplier Inc.\",\r\n  \"Brand\": \"Sample Brand\",\r\n  \"Model\": \"Sample Model\",\r\n  \"Quantity\": 10,\r\n  \"ReorderQuantity\": 5,\r\n  \"Location\": \"Warehouse A\",\r\n  \"ExpirationDate\": \"2025-04-01T08:00:00Z\",\r\n  \"Category\": 1,\r\n  \"CustomPackageUuid\": \"789e4567-e89b-12d3-a456-426614174000\",\r\n  \"ItemWeightG\": 500,\r\n  \"IsListed\": true,\r\n  \"IsLot\": false,\r\n  \"Notes\": \"Sample notes\",\r\n  \"BusinessUuid\": \"789e4567-e89b-12d3-a456-426614174000\",\r\n  \"UserUuid\": \"789e4567-e89b-12d3-a456-426614174000\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -66,7 +66,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjEwMjk0OSwiZXhwIjoxNzEyMTg5MzQ5LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.dM-wTOUhsdCt_eZShxpdSOMKf5RpPmR3K9yYMsRNkhYXdI-aWhg1z643K8T-uYragBuhJIWrV_Wj6UVULHXdGAE8i4zKFMYAe5QVLqfqSNEPVbQrsX5N7vCTWHQV7pX0PMZtb0s83e8tse4R_6mi1WUf8bbEqHn8Q_Z7gEiOxL0aEBn_85muVKiRxjTxCsHeK-wep99XifDDMm5lVfZIV2pVbowTecRFnzatEIvm0nUQDCwkKBL4G6W94KO_5kjW_GoA3vrbsU0cdG6disjudC7UqfI355Vgp4jrhUbdgL5YAgCy39-1Wszy_p8zC4c-KCLhQKSXGG5hlla8ch2Y2g",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjQ0MjIwNCwiZXhwIjoxNzEyNTI4NjA0LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.qXwbiHN31yM5_b0reQTeB5muln7OHX75nYEc2V1ae7726XkJSG-pb7l6WqqJ4QbdAqGhMcOrJPG-gjEm0rRgaF_znbPlNcrgrTA06QH0P2WFiHvuQNbc6WN9eAPPz9YUm5rfM2juZwEsul2R4_FWTE8T59oyvz6FTJzNGKiu_R-xyDp8zFc_fciN6oTznq1W671_Is0N7J50LJZluE47tI9NqdKaMWMQW5Pr6wqAE6fQc3WlwKtraMXd0KqIH1W7CVnUeRzWd3ksHK08Tw7XezKL-Yd4vewOw5LBZ_Or1lw0n3_TuZ2gIBFV3l09dhlUCwJkEZmJYS3W3Ma25vhzAw",
 							"type": "string"
 						}
 					]
@@ -89,7 +89,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:6060/api/inventory/inventory-item?id=3",
+					"raw": "http://localhost:6060/api/inventory/inventory-item?id=c6677d6b-4f1b-4ab5-943d-56a2ed047f02",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -103,7 +103,7 @@
 					"query": [
 						{
 							"key": "id",
-							"value": "3"
+							"value": "c6677d6b-4f1b-4ab5-943d-56a2ed047f02"
 						}
 					]
 				}

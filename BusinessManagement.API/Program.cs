@@ -1,13 +1,10 @@
 using App.Helpers;
 using App.Middlewares;
-using App.Models;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +28,13 @@ builder.Services.AddCors(options =>
             .SetPreflightMaxAge(TimeSpan.FromSeconds(86400));
     });
 });
+
+Auth0Settings? auth0Settings = builder.Configuration.GetSection("Auth0Settings").Get<Auth0Settings>();
+
+if (auth0Settings == null)
+{
+    throw new Exception($"Configure auth0 properties in appsettings.json {auth0Settings}.");
+}
 
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
@@ -66,6 +70,14 @@ builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSetti
 builder.Services.AddSingleton<DataContext>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuth0Service, Auth0Service>();
+
+builder.Services.AddHttpClient("Auth0Domain", httpClient =>
+{
+    httpClient.BaseAddress = new Uri($"https://{auth0Settings.AUTH0_DOMAIN}");
+});
 
 var app = builder.Build();
 

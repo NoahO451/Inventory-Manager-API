@@ -87,3 +87,18 @@ CREATE TABLE custom_package (
     height_cm INTEGER, 
     length_cm INTEGER
 );
+
+-- Alter table to add constraint
+ALTER TABLE example_table
+ADD CONSTRAINT valid_timestamp CHECK (
+    event_timestamp > '-infinity'::timestamp AND
+    event_timestamp < 'infinity'::timestamp
+);
+
+--changeset Carl:4 context:#16
+--comment: Removed role from user data
+ALTER TABLE user_data
+DROP COLUMN role;
+
+ALTER TABLE user_data
+DROP COLUMN username;
