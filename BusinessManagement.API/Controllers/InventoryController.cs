@@ -1,8 +1,10 @@
-﻿using App.Models.DTO.Requests;
+﻿using App.Helpers;
+using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace App.Controllers
 {
@@ -12,10 +14,12 @@ namespace App.Controllers
     public class InventoryController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;
+        private readonly ILogger<InventoryController> _logger;
 
-        public InventoryController(IInventoryService inventoryService)
+        public InventoryController(IInventoryService inventoryService, ILogger<InventoryController> logger)
         {
             _inventoryService = inventoryService;
+            _logger = logger;
         }
 
         [HttpGet("inventory-item")]
@@ -30,13 +34,15 @@ namespace App.Controllers
 
                 if (inventoryItem == null)
                 {
+                   _logger.LogWarning("{trace} InventoryItem was null", LogHelper.TraceLog());
                     return BadRequest();
                 }
 
                 return Ok(inventoryItem);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -58,13 +64,15 @@ namespace App.Controllers
 
                 if (inventoryItems == null) 
                 {
+                    _logger.LogWarning("{trace} inventoryItems were null", LogHelper.TraceLog());
                     return BadRequest();
                 }
 
                 return Ok(inventoryItems);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -86,13 +94,15 @@ namespace App.Controllers
 
                 if (response == null || !response.Success)
                 {
+                    _logger.LogWarning("{trace} response was null", LogHelper.TraceLog());
                     return BadRequest();
                 }
 
                 return CreatedAtAction(nameof(AddInventoryItem), new { id = response.Data });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

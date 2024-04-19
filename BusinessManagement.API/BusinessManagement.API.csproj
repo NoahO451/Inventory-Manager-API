@@ -17,11 +17,17 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Npgsql" Version="8.0.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+		<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
     <PackageReference Include="Serilog.Expressions" Version="4.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
+		<Using Include="App.Extensions" />
+		<Using Include="App.Helpers" />
+	</ItemGroup>
+
+	<ItemGroup>
     <Folder Include="Postman\" />
   </ItemGroup>
 

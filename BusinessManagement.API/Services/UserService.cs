@@ -20,10 +20,13 @@ namespace App.Services
         private IUserRepository _userRepository;
 
         private IAuth0Service _auth0Service;
-        public UserService(IUserRepository userRepository, IAuth0Service auth0Service)
+
+        private ILogger<UserService> _logger;
+        public UserService(IUserRepository userRepository, IAuth0Service auth0Service, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _auth0Service = auth0Service;
+            _logger = logger;
         }
 
         public async Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest req)
@@ -50,6 +53,7 @@ namespace App.Services
 
                 if (!userCreated)
                 {
+                    _logger.LogWarning("{trace} Failed to create new user", LogHelper.TraceLog());
                     apiResponse.Message = "There was an error saving to the database.";
                     apiResponse.Success = false;
                     return apiResponse;
@@ -69,9 +73,9 @@ namespace App.Services
                 return apiResponse;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 throw;
             }
         }
@@ -82,6 +86,7 @@ namespace App.Services
 
             if (user == null || user.IsDeleted)
             {
+                _logger.LogWarning("{trace} User null or deleted", LogHelper.TraceLog());
                 return ServiceResult<GetUserResponse>.FailureResult("Error getting the user.");
             }
 
@@ -133,7 +138,6 @@ namespace App.Services
                     user.SetEmail(req.EmailAddress);
                     updateRequired = true;
                 }
-
                 if (updateRequired)
                 {
                     bool userUpdated = await _userRepository.UpdateUserDemographics(user);
@@ -143,11 +147,39 @@ namespace App.Services
                         // If we have a previous email value, rollback Auth0 email to the previous one to keep it in sync with our database's value 
                         if (!string.IsNullOrWhiteSpace(previousEmail))
                         {
-                            ServiceResult auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, previousEmail);
+                            // Retry for rollback
+                            bool rollbackSuccess = false;
+                            int retryCount = 3; 
+                            int retryDelayMs = 1000; 
+
+                            for (int i = 0; i < retryCount; i++)
+                            {
+                                ServiceResult auth0UpdateResult = await _auth0Service.UpdateAuth0UserEmail(user.Auth0Id.Auth0UserId, previousEmail);
+
+                                if (auth0UpdateResult.Success)
+                                {
+                                    rollbackSuccess = true;
+                                    break; 
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("{trace} Retry attempt {attempt}: Auth0 rollback failed", LogHelper.TraceLog(), i + 1);
+                                    await Task.Delay(retryDelayMs);
+                                }
+                            }
+
+                            // If we reach this point, we're in trouble
+                            if (!rollbackSuccess)
+                            {
+                                _logger.LogCritical("{trace} Auth0 rollback failed after {retryCount} retry attempts", LogHelper.TraceLog(), retryCount);
+                                return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("User database update failed, Auth0 rollback failed.");
+                            }
                         }
+                        _logger.LogWarning("{trace} User update failed, Auth0 changes rolled back", LogHelper.TraceLog());
                         return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("User database update failed, Auth0 changes rolled back.");
                     }
                 }
+
 
                 UpdateUserDemographicsResponse userResponse = new UpdateUserDemographicsResponse() 
                 {
@@ -160,6 +192,7 @@ namespace App.Services
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return ServiceResult<UpdateUserDemographicsResponse>.FailureResult("Exception thrown, user update failed", ex);
             }
         }
@@ -175,10 +208,12 @@ namespace App.Services
                     return ServiceResult.SuccessResult();
                 }
 
+                _logger.LogWarning("{trace} Failed to delete user", LogHelper.TraceLog());
                 return ServiceResult.FailureResult("Failed to delete user.");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return ServiceResult.FailureResult("Exception thrown, failed to delete user", ex);
             }
         }

@@ -1,22 +1,21 @@
-using App.Helpers;
 using App.Middlewares;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
+using Serilog.Exceptions;
 using Serilog.Templates;
 using Serilog.Templates.Themes;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.WithExceptionDetails()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateBootstrapLogger();
@@ -57,6 +56,7 @@ try
 
     if (auth0Settings == null)
     {
+        Log.Fatal($"Configure auth0 properties in appsettings.json {auth0Settings}. Check secrets.", LogHelper.TraceLog());
         throw new Exception($"Configure auth0 properties in appsettings.json {auth0Settings}.");
     }
 
@@ -138,6 +138,7 @@ try
 
         if (value == "" || value == null)
         {
+            Log.Fatal($"Config variable missing: {key}. Check secrets.", LogHelper.TraceLog());
             throw new Exception($"Config variable missing: {key}.");
         }
     }

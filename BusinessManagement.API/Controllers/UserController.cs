@@ -12,10 +12,12 @@ namespace App.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IUserService _userService;
+        private readonly ILogger<UserController> _logger;
+        public UserController(IUserService userService, ILogger<UserController> logger)
         {
             _userService = userService;
+            _logger = logger; 
         }
 
         [HttpPost("new-user-signup")]
@@ -30,13 +32,15 @@ namespace App.Controllers
 
                 if (response == null || !response.Success)
                 {
+                    _logger.LogWarning("{trace} New user signup failed", LogHelper.TraceLog());
                     return BadRequest(response.Message ?? "New user signup failed");
                 }
 
                 return CreatedAtAction(nameof(NewUserSignup), response.Data );
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -54,13 +58,15 @@ namespace App.Controllers
 
                 if (response == null || !response.Success)
                 {
+                    _logger.LogWarning("{trace} get user failed", LogHelper.TraceLog());
                     return BadRequest(response?.ErrorMessage);
                 }
 
                 return Ok(response.Data);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -78,13 +84,15 @@ namespace App.Controllers
 
                 if (response == null || !response.Success)
                 {
+                    _logger.LogWarning("{trace} update user failed", LogHelper.TraceLog());
                     return BadRequest(response?.ErrorMessage);
                 }
 
                 return Ok(response.Data);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -102,13 +110,15 @@ namespace App.Controllers
 
                 if (response == null || !response.Success)
                 {
+                    _logger.LogWarning("{trace} mark user deleted failed", LogHelper.TraceLog());
                     return BadRequest(response?.ErrorMessage);
                 }
 
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

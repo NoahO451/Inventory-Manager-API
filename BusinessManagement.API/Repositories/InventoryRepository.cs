@@ -22,10 +22,12 @@ namespace App.Repositories
     public class InventoryRepository : IInventoryRepository
     {
         private DataContext _context;
+        private ILogger<InventoryRepository> _logger;
 
-        public InventoryRepository(DataContext context)
+        public InventoryRepository(DataContext context, ILogger<InventoryRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -35,13 +37,15 @@ namespace App.Repositories
         /// <returns></returns>
         public async Task<InventoryItem> GetInventoryItem(Guid uuid)
         {
-            IEnumerable<InventoryItem> result = null;
+            IEnumerable<InventoryItem>? result = null;
 
             using (var connection = _context.CreateConnection())
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                string sql = """
+                    string sql = """
                             SELECT 
                             -- Inventory item NON-nested props:
                                 ii.inventory_item_uuid AS InventoryItemUuid,
@@ -73,19 +77,24 @@ namespace App.Repositories
                         WHERE ii.inventory_item_uuid = @Uuid;
                         """;
 
-                result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
-                    sql, 
-                    (invItem, item, itemDetail) => 
-                    {
-                        invItem.Item = item; 
-                        invItem.ItemDetail = itemDetail;
-                        return invItem;
-                    },
-                    new { Uuid = uuid },
-                    splitOn: "name,sku" 
-                );
+                    result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
+                        sql,
+                        (invItem, item, itemDetail) =>
+                        {
+                            invItem.Item = item;
+                            invItem.ItemDetail = itemDetail;
+                            return invItem;
+                        },
+                        new { Uuid = uuid },
+                        splitOn: "name,sku"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                    return result.FirstOrDefault();
+                }
             }
-
             return result.FirstOrDefault();
         }
 
@@ -100,17 +109,19 @@ namespace App.Repositories
 
             using (var connection = _context.CreateConnection())
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                string getBusinessIdSQL = """
+                    string getBusinessIdSQL = """
                         SELECT business_id 
                         FROM business b
                         WHERE b.business_uuid = @BusinessUuid
                         """;
 
-                int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
+                    int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
 
-                string sql = """
+                    string sql = """
                         SELECT 
                         ii.inventory_item_uuid AS InventoryItemUuid,
                         ii.purchase_date AS PurchaseDate,
@@ -147,17 +158,23 @@ namespace App.Repositories
                     WHERE bii.business_id = @BusinessId;
                     """;
 
-                result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
-                    sql, 
-                    (invItem, item, itemDetail) =>
-                    {
-                        invItem.Item = item;
-                        invItem.ItemDetail = itemDetail;
-                        return invItem;
-                    },
-                    new { BusinessId = businessId },
-                    splitOn: "name,sku" 
-                );
+                    result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
+                        sql,
+                        (invItem, item, itemDetail) =>
+                        {
+                            invItem.Item = item;
+                            invItem.ItemDetail = itemDetail;
+                            return invItem;
+                        },
+                        new { BusinessId = businessId },
+                        splitOn: "name,sku"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                    return result.ToList();
+                }
             }
 
             return result.ToList();
@@ -171,39 +188,46 @@ namespace App.Repositories
         /// <returns></returns>
         public async Task CreateInventoryItem(InventoryItem inventoryItem, Guid businessUuid)
         {
-            using (var connection = _context.CreateConnection())
+            try
             {
-                connection.Open();
-
-                using (var transaction = connection.BeginTransaction())
+                using (var connection = _context.CreateConnection())
                 {
-                    string insertInventoryItemSql = """
+                    connection.Open();
+
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        string insertInventoryItemSql = """
                         INSERT INTO inventory_item (inventory_item_uuid, name, description, sku, cost, serial_number, purchase_date, supplier, brand, model, quantity, reorder_quantity, location, expiration_date, category, custom_package_uuid, item_weight_g, is_listed, is_lot, notes)
                         VALUES (@InventoryItemUuid, @Name, @Description, @Sku, @Cost, @SerialNumber, @PurchaseDate, @Supplier, @Brand, @Model, @Quantity, @ReorderQuantity, @Location, @ExpirationDate, @Category, @CustomPackageUuid, @ItemWeightG, @IsListed, @IsLot, @Notes)
                         RETURNING inventory_item_id; 
-                        """; 
+                        """;
 
-                    var parameters = InventoryItemFlatten(inventoryItem);
+                        var parameters = InventoryItemFlatten(inventoryItem);
 
-                    long inventoryItemId = await connection.QueryFirstOrDefaultAsync<long>(insertInventoryItemSql, parameters);
+                        long inventoryItemId = await connection.QueryFirstOrDefaultAsync<long>(insertInventoryItemSql, parameters);
 
-                    string getBusinessIdSQL = """
+                        string getBusinessIdSQL = """
                         SELECT business_id 
                         FROM business b
                         WHERE b.business_uuid = @BusinessUuid
                         """;
 
-                    int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
+                        int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
 
-                    string insertBusinessInventoryItemSql = """
+                        string insertBusinessInventoryItemSql = """
                         INSERT INTO business_inventory_item (inventory_item_id, business_id)
                         VALUES (@InventoryItemId, @BusinessId);
                         """;
 
-                    await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
+                        await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
 
-                    transaction.Commit();
+                        transaction.Commit();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
             }
         }
 
