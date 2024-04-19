@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using App.Extensions;
 
 namespace App.Middlewares
 {

@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-		<Using Include="App.Extensions" />
 		<Using Include="App.Helpers" />
 	</ItemGroup>
 
