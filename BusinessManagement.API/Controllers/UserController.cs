@@ -2,14 +2,13 @@
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Services;
-using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -20,7 +19,7 @@ namespace App.Controllers
             _logger = logger; 
         }
 
-        [HttpPost("new-user-signup")]
+        [HttpPost("signup")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -72,7 +71,7 @@ namespace App.Controllers
         }
 
         [Authorize]
-        [HttpPatch("update-user")]
+        [HttpPatch]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -84,7 +83,7 @@ namespace App.Controllers
 
                 if (response == null || !response.Success)
                 {
-                    _logger.LogWarning("{trace} update user failed", LogHelper.TraceLog());
+                    _logger.LogWarning("{trace} response was null or failed", LogHelper.TraceLog());
                     return BadRequest(response?.ErrorMessage);
                 }
 
@@ -98,7 +97,7 @@ namespace App.Controllers
         }
 
         [Authorize]
-        [HttpPatch("delete-user/{uuid}")]
+        [HttpPatch("{uuid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
