@@ -18,7 +18,7 @@ namespace App.Repositories
         Task<List<InventoryItem>> RetrieveAllInventoryItems(Guid businessId);
         Task CreateInventoryItem(InventoryItem request, Guid businessUuid);
         Task<bool> RemoveInventoryItem(Guid uuid);
-        Task<bool> UpdateInventoryItem(InventoryItem request, Guid uuid);
+        Task<bool> UpdateInventoryItem(InventoryItem request);
     }
 
     public class InventoryRepository : IInventoryRepository
@@ -245,9 +245,48 @@ namespace App.Repositories
             }
         }
 
-        public Task<bool> UpdateInventoryItem(InventoryItem request, Guid uuid)
+        public async Task<bool> UpdateInventoryItem(InventoryItem inventoryItem)
         {
-            throw new NotImplementedException();
+            using ( var connection = _context.CreateConnection())
+            {
+                string updateIISql = """
+                    UPDATE 
+                        inventory_item
+                    SET 
+                        name = @Name,
+                        description = @Description,
+                        sku = @Sku,
+                        cost = @Cost,
+                        serial_number = @SerialNumber,
+                        purchase_date = @PurchaseDate,
+                        supplier = @Supplier,
+                        brand = @Brand,
+                        model = @Model,
+                        quantity = @Quantity,
+                        reorder_quantity = @ReorderQuantity,
+                        location = @Location,
+                        expiration_date = @ExpirationDate,
+                        category = @Category,
+                        custom_package_uuid = @CustomPackageUuid,
+                        item_weight_g = @ItemWeightG,
+                        is_listed = @IsListed,
+                        is_lot = @IsLot,
+                        notes = @Notes
+                    WHERE
+                        inventory_item_uuid = @InventoryItemUuid
+                    """;
+
+                var parameters = InventoryItemFlatten(inventoryItem); 
+
+                var rowsUpdated = await connection.ExecuteAsync(updateIISql, parameters);
+
+                if (rowsUpdated > 0) 
+                { 
+                    return true; 
+                } 
+
+                return false;
+            }
         }
 
         /// <summary>

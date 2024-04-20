@@ -14,6 +14,7 @@ namespace App.Services
         Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
         Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
+        Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest inventoryItem);
     }
 
     public class InventoryService : IInventoryService
@@ -142,6 +143,28 @@ namespace App.Services
                 }
 
                 return ServiceResult<bool>.FailureResult("Failed to delete item.");
+
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete item", ex);
+            }
+        }
+
+        public async Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest request)
+        {
+            try
+            {
+                InventoryItem inventoryItem = InventoryItemMapper.FromRequest(request);
+
+                bool itemUpdated = await _inventoryRepository.UpdateInventoryItem(inventoryItem);
+
+                if (itemUpdated)
+                {
+                    return ServiceResult<bool>.SuccessResult();
+                }
+
+                return ServiceResult<bool>.FailureResult("Failed to update item.");
 
             }
             catch (Exception ex)
