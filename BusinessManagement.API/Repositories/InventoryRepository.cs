@@ -24,10 +24,12 @@ namespace App.Repositories
     public class InventoryRepository : IInventoryRepository
     {
         private DataContext _context;
+        private ILogger<InventoryRepository> _logger;
 
-        public InventoryRepository(DataContext context)
+        public InventoryRepository(DataContext context, ILogger<InventoryRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -37,59 +39,64 @@ namespace App.Repositories
         /// <returns></returns>
         public async Task<InventoryItem> GetInventoryItem(Guid uuid)
         {
-            IEnumerable<InventoryItem> result = null;
+            IEnumerable<InventoryItem>? result = null;
 
             using (var connection = _context.CreateConnection())
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                // Notice how this query is spaced weird. If you compare it to the InventoryItem's structure, we're returning the database columns
-                // in the same order that they appear in the aggregate. 
-                string sql = """
+                    string sql = """
                             SELECT 
-                            ii.inventory_item_uuid AS InventoryItemUuid,
-                            ii.purchase_date AS PurchaseDate,
-                            ii.reorder_quantity AS ReorderQuantity,
-                            ii.location,
-                            ii.custom_package_uuid AS CustomPackageUuid,
-                            ii.is_listed AS IsListed,
-                            ii.is_lot AS IsLOt,
-                            ii.notes,
+                            -- Inventory item NON-nested props:
+                                ii.inventory_item_uuid AS InventoryItemUuid,
+                                ii.purchase_date AS PurchaseDate,
+                                ii.reorder_quantity AS ReorderQuantity,
+                                ii.location,
+                                ii.custom_package_uuid AS CustomPackageUuid,
+                                ii.is_listed AS IsListed,
+                                ii.is_lot AS IsLOt,
+                                ii.notes,
 
-                            ii.name,
-                            ii.description,
-                            ii.cost,
-                            ii.quantity,
-                            ii.expiration_date AS ExpirationDate,
-                            ii.category,
-                            ii.item_weight_g AS ItemWeightG,
+                            -- Item props:
+                                ii.name,
+                                ii.description,
+                                ii.cost,
+                                ii.quantity,
+                                ii.expiration_date AS ExpirationDate,
+                                ii.category,
+                                ii.item_weight_g AS ItemWeightG,
 
-                            ii.sku,
-                            ii.serial_number AS SerialNumber,
-                            ii.supplier,
-                            ii.brand,
-                            ii.model
+                            -- ItemDetail props
+                                ii.sku,
+                                ii.serial_number AS SerialNumber,
+                                ii.supplier,
+                                ii.brand,
+                                ii.model
                         FROM 
                             inventory_item ii
                         WHERE ii.inventory_item_uuid = @Uuid;
                         """;
 
-                // Set the QueryAsync types to the three classes we pass in, and the class we expect to end with
-                result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
-                    sql, // pass in SQL query from above
-                    (invItem, item, itemDetail) => // These are the three classes we're dealing with
-                    {
-                        invItem.Item = item;
-                        invItem.ItemDetail = itemDetail;
-                        return invItem;
-                    },
-                    new { Uuid = uuid },
-                    // Specify columns to split the result set on. We will palce the value each column from the database result to InventoryItem. Once we 
-                    // reach the "ii.name", we put those column's values into the "Item" object. Once we reach "ii.sku", those values go into the ItemDetails object.
-                    splitOn: "name,sku" 
-                );
+                    result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
+                        sql,
+                        (invItem, item, itemDetail) =>
+                        {
+                            invItem.Item = item;
+                            invItem.ItemDetail = itemDetail;
+                            return invItem;
+                        },
+                        new { Uuid = uuid },
+                        splitOn: "name,sku"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                    return result.FirstOrDefault();
+                }
             }
-
             return result.FirstOrDefault();
         }
 
@@ -104,20 +111,19 @@ namespace App.Repositories
 
             using (var connection = _context.CreateConnection())
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                // Get the business' primary key for a join we'll need to perform 
-                string getBusinessIdSQL = """
+                    string getBusinessIdSQL = """
                         SELECT business_id 
                         FROM business b
                         WHERE b.business_uuid = @BusinessUuid
                         """;
 
-                int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
+                    int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
 
-                // Notice how this query is spaced weird. If you compare it to the InventoryItem's structure, we're returning the database columns
-                // in the same order that they appear in the aggregate. 
-                string sql = """
+                    string sql = """
                         SELECT 
                         ii.inventory_item_uuid AS InventoryItemUuid,
                         ii.purchase_date AS PurchaseDate,
@@ -128,7 +134,6 @@ namespace App.Repositories
                         ii.is_lot AS IsLOt,
                         ii.notes,
                     
-                        -- This is where InventoryItem.Item's props start
                         ii.name,
                         ii.description,
                         ii.cost,
@@ -137,7 +142,6 @@ namespace App.Repositories
                         ii.category,
                         ii.item_weight_g AS ItemWeightG,
                     
-                        -- This is where InventoryItem.ItemDetail's props start
                         ii.sku,
                         ii.serial_number AS SerialNumber,
                         ii.supplier,
@@ -156,20 +160,23 @@ namespace App.Repositories
                     WHERE bii.business_id = @BusinessId;
                     """;
 
-                // Set the QueryAsync types to the three classes we pass in, and the class we expect to end with
-                result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
-                    sql, // pass in SQL query from above
-                    (invItem, item, itemDetail) => // These are the three classes we're dealing with
-                    {
-                        invItem.Item = item;
-                        invItem.ItemDetail = itemDetail;
-                        return invItem;
-                    },
-                    new { BusinessId = businessId },
-                    // Specify columns to split the result set on. We will palce the value each column from the database result to InventoryItem. Once we 
-                    // reach the "ii.name", we put those column's values into the "Item" object. Once we reach "ii.sku", those values go into the ItemDetails object.
-                    splitOn: "name,sku" 
-                );
+                    result = await connection.QueryAsync<InventoryItem, Item, ItemDetail, InventoryItem>(
+                        sql,
+                        (invItem, item, itemDetail) =>
+                        {
+                            invItem.Item = item;
+                            invItem.ItemDetail = itemDetail;
+                            return invItem;
+                        },
+                        new { BusinessId = businessId },
+                        splitOn: "name,sku"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                    return result.ToList();
+                }
             }
 
             return result.ToList();
@@ -183,47 +190,46 @@ namespace App.Repositories
         /// <returns></returns>
         public async Task CreateInventoryItem(InventoryItem inventoryItem, Guid businessUuid)
         {
-            using (var connection = _context.CreateConnection())
+            try
             {
-                connection.Open();
-
-                using (var transaction = connection.BeginTransaction())
+                using (var connection = _context.CreateConnection())
                 {
-                    // Basic INSERT query
-                    string insertInventoryItemSql = """
+                    connection.Open();
+
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        string insertInventoryItemSql = """
                         INSERT INTO inventory_item (inventory_item_uuid, name, description, sku, cost, serial_number, purchase_date, supplier, brand, model, quantity, reorder_quantity, location, expiration_date, category, custom_package_uuid, item_weight_g, is_listed, is_lot, notes)
                         VALUES (@InventoryItemUuid, @Name, @Description, @Sku, @Cost, @SerialNumber, @PurchaseDate, @Supplier, @Brand, @Model, @Quantity, @ReorderQuantity, @Location, @ExpirationDate, @Category, @CustomPackageUuid, @ItemWeightG, @IsListed, @IsLot, @Notes)
                         RETURNING inventory_item_id; 
-                        """; // RETURNING returns the primary key so we can use it later in the join table
+                        """;
 
-                    // Since the InventoryItem class is an aggregate of other classes, it's easier to "flatten" it 
-                    // out here and send it to the datatbase as one simple object, than it would be to try and make 
-                    // Dapper understand the shape of this class. I'm also tired.
-                    var parameters = InventoryItemFlatten(inventoryItem);
+                        var parameters = InventoryItemFlatten(inventoryItem);
 
-                    // Flattened invetory item object now fills in the "@" paramters from the query above
-                    long inventoryItemId = await connection.QueryFirstOrDefaultAsync<long>(insertInventoryItemSql, parameters);
+                        long inventoryItemId = await connection.QueryFirstOrDefaultAsync<long>(insertInventoryItemSql, parameters);
 
-                    // Use the GUID to get the business' primary key
-                    string getBusinessIdSQL = """
+                        string getBusinessIdSQL = """
                         SELECT business_id 
                         FROM business b
                         WHERE b.business_uuid = @BusinessUuid
                         """;
 
-                    int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
+                        int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
 
-                    string insertBusinessInventoryItemSql = """
+                        string insertBusinessInventoryItemSql = """
                         INSERT INTO business_inventory_item (inventory_item_id, business_id)
                         VALUES (@InventoryItemId, @BusinessId);
                         """;
 
-                    // Add the inventory item and business to the join table via their PKs instead of GUIDs. This is the only time that the primary key
-                    // should really show up in the API. The PK has not reason to make it to the client.
-                    await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
+                        await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
 
-                    transaction.Commit();
+                        transaction.Commit();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
             }
         }
         /// <summary>

@@ -88,6 +88,22 @@ CREATE TABLE custom_package (
     length_cm INTEGER
 );
 
+-- Alter table to add constraint
+ALTER TABLE example_table
+ADD CONSTRAINT valid_timestamp CHECK (
+    event_timestamp > '-infinity'::timestamp AND
+    event_timestamp < 'infinity'::timestamp
+);
+
+--changeset Carl:4 context:#16
+--comment: Removed role from user data
+ALTER TABLE user_data
+DROP COLUMN role;
+
+ALTER TABLE user_data
+DROP COLUMN username;
+);
+
 --changeset Decimal:5 context:#4 splitStatements:false
 --comment: add removed_ii table, add before delete trigger when deleting item from ii table
 CREATE TABLE removed_inventory_item (

@@ -40,7 +40,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"client_id\": \"laQpfDUzyNUsF6IneoOdyMySKQb8jZ0t\",\r\n    \"client_secret\": \"citUoXQyw73mGVlZctPQgrHHiIdoSDH_XPMhechK9-7bqWH6WMOHRbQQrvUaEdEb\",\r\n    \"audience\": \"https://dev-business-api.com\",\r\n    \"grant_type\": \"client_credentials\"\r\n}",
+					"raw": "{\r\n    \"client_id\": \"\",\r\n    \"client_secret\": \"\",\r\n    \"audience\": \"\",\r\n    \"grant_type\": \"client_credentials\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

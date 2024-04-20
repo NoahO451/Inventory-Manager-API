@@ -12,6 +12,11 @@ namespace App.Services
     {
         Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
         Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
+        /// <summary>
+        /// Insert a single inventory item into the database.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
         Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
         Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest inventoryItem);
@@ -20,10 +25,12 @@ namespace App.Services
     public class InventoryService : IInventoryService
     {
         private readonly IInventoryRepository _inventoryRepository;
+        private readonly ILogger<InventoryService> _logger;
 
-        public InventoryService(IInventoryRepository inventoryRepository)
+        public InventoryService(IInventoryRepository inventoryRepository, ILogger<InventoryService> logger)
         {
             _inventoryRepository = inventoryRepository;
+            _logger = logger;
         }
 
         public async Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid)
@@ -32,6 +39,7 @@ namespace App.Services
 
             if (item == null)
             {
+                _logger.LogWarning("{trace} item was null", LogHelper.TraceLog());
                 return new GetInventoryItemResponse();
             }
 
@@ -73,6 +81,7 @@ namespace App.Services
 
             if (inventoryItems == null || inventoryItems.Count == 0)
             {
+                _logger.LogWarning("{trace} inventoryItems null or empty", LogHelper.TraceLog());
                 return response;
             }
 
@@ -106,6 +115,11 @@ namespace App.Services
             return response;
         }
 
+        /// <summary>
+        /// Insert a single inventory item into the database.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request)
         {
             try
@@ -122,11 +136,13 @@ namespace App.Services
                     return apiResponse;
                 }
 
+                _logger.LogWarning("{trace} inventoryItems null or empty", LogHelper.TraceLog());
                 apiResponse.Success = false;
                 return apiResponse;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return new ApiResponse<Guid>() { Success = false };
             }
         }
