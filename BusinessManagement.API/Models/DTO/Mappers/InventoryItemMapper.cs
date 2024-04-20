@@ -32,7 +32,7 @@ namespace App.Models.DTO.Mappers
 
             // Map properties from the request to the InventoryItem constructor
             return new InventoryItem(
-                Guid.NewGuid(),
+                req.InventoryItemUuid,
                 req.PurchaseDate,
                 req.ReorderQuantity,
                 req.CustomPackageUuid,

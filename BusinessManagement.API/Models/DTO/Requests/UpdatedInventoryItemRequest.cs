@@ -2,6 +2,7 @@
 {
     public class UpdatedInventoryItemRequest
     {
+        public Guid InventoryItemUuid { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
         public string? SKU { get; set; }

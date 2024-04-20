@@ -247,7 +247,7 @@ namespace App.Repositories
 
         public async Task<bool> UpdateInventoryItem(InventoryItem inventoryItem)
         {
-            using ( var connection = _context.CreateConnection())
+            using (var connection = _context.CreateConnection())
             {
                 string updateIISql = """
                     UPDATE 
