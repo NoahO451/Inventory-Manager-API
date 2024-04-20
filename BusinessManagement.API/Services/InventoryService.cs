@@ -22,10 +22,12 @@ namespace App.Services
     public class InventoryService : IInventoryService
     {
         private readonly IInventoryRepository _inventoryRepository;
+        private readonly ILogger<InventoryService> _logger;
 
-        public InventoryService(IInventoryRepository inventoryRepository)
+        public InventoryService(IInventoryRepository inventoryRepository, ILogger<InventoryService> logger)
         {
             _inventoryRepository = inventoryRepository;
+            _logger = logger;
         }
 
         public async Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid)
@@ -34,6 +36,7 @@ namespace App.Services
 
             if (item == null)
             {
+                _logger.LogWarning("{trace} item was null", LogHelper.TraceLog());
                 return new GetInventoryItemResponse();
             }
 
@@ -75,6 +78,7 @@ namespace App.Services
 
             if (inventoryItems == null || inventoryItems.Count == 0)
             {
+                _logger.LogWarning("{trace} inventoryItems null or empty", LogHelper.TraceLog());
                 return response;
             }
 
@@ -129,11 +133,13 @@ namespace App.Services
                     return apiResponse;
                 }
 
+                _logger.LogWarning("{trace} inventoryItems null or empty", LogHelper.TraceLog());
                 apiResponse.Success = false;
                 return apiResponse;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return new ApiResponse<Guid>() { Success = false };
             }
         }

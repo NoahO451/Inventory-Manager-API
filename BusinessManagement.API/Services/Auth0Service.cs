@@ -17,13 +17,15 @@ namespace App.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<Auth0Service> _logger;
 
         private const string api_version = $"/api/v2";
 
-        public Auth0Service(IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public Auth0Service(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<Auth0Service> logger)
         {
             _configuration = configuration;
             _httpClient = httpClientFactory.CreateClient("Auth0Domain");
+            _logger = logger;
         }
         
         /// <summary>
@@ -40,6 +42,7 @@ namespace App.Services
 
                 if (string.IsNullOrWhiteSpace(token))
                 {
+                    _logger.LogWarning("{trace} Auth0 management JWT null or whiteSpace", LogHelper.TraceLog());
                     return ServiceResult.FailureResult("Auth0 management JWT null or whiteSpace.");
                 }
 
@@ -47,6 +50,7 @@ namespace App.Services
 
                 if (settings == null)
                 {
+                    _logger.LogError("{trace} Auth0 configuration settings null or whiteSpace", LogHelper.TraceLog());
                     return ServiceResult.FailureResult("Auth0 configuration settings null or whiteSpace.");
                 }
 
@@ -67,6 +71,7 @@ namespace App.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return ServiceResult.FailureResult("Exception updating Auth0 user email", ex);
             }
         }

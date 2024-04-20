@@ -20,9 +20,12 @@ namespace App.Repositories
     {
         private DataContext _context;
 
-        public UserRepository(DataContext context)
+        private ILogger<UserRepository> _logger;
+
+        public UserRepository(DataContext context, ILogger<UserRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -59,6 +62,7 @@ namespace App.Repositories
                     return true;
                 }
 
+                _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
                 return false;
             }
         }
@@ -144,6 +148,7 @@ namespace App.Repositories
                     return true;
                 }
 
+                _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
                 return false;
             }
         }
@@ -173,6 +178,7 @@ namespace App.Repositories
                     return true;
                 }
 
+                _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
                 return false;
             }
         }
