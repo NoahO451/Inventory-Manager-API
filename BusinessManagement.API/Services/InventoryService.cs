@@ -185,7 +185,7 @@ namespace App.Services
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete item", ex);
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to update item", ex);
             }
         }
     }

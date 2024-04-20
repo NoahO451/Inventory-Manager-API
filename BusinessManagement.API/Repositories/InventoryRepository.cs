@@ -247,10 +247,19 @@ namespace App.Repositories
 
                 var rowsRemoved = await connection.ExecuteAsync(removeInventoryItemSql, param: new { SelectedIIUuid = uuid });
 
-                if (rowsRemoved > 0) { return true; } else { return false; }
+                if (rowsRemoved > 0) 
+                { 
+                    return true; 
+                } 
+
+                return false;
             }
         }
-
+        /// <summary>
+        /// Update one inventory item and returns true or false if the item has been updated
+        /// </summary>
+        /// <param name="inventoryItem"></param>
+        /// <returns></returns>
         public async Task<bool> UpdateInventoryItem(InventoryItem inventoryItem)
         {
             using (var connection = _context.CreateConnection())
