@@ -1,4 +1,5 @@
 ﻿using App.Models;
+using App.Models.DTO;
 using App.Models.DTO.Mappers;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
@@ -17,6 +18,8 @@ namespace App.Services
         /// <param name="request"></param>
         /// <returns></returns>
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
+        Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
+        Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest inventoryItem);
     }
 
     public class InventoryService : IInventoryService
@@ -141,6 +144,48 @@ namespace App.Services
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return new ApiResponse<Guid>() { Success = false };
+            }
+        }
+
+        public async Task<ServiceResult<bool>> RemovedItemResults(Guid uuid)
+        {
+            try
+            {
+                bool itemDeleted = await _inventoryRepository.RemoveInventoryItem(uuid);
+
+                if (itemDeleted)
+                {
+                    return ServiceResult<bool>.SuccessResult();
+                }
+
+                return ServiceResult<bool>.FailureResult("Failed to delete item.");
+
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete item", ex);
+            }
+        }
+
+        public async Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest request)
+        {
+            try
+            {
+                InventoryItem inventoryItem = InventoryItemMapper.FromRequest(request);
+
+                bool itemUpdated = await _inventoryRepository.UpdateInventoryItem(inventoryItem);
+
+                if (itemUpdated)
+                {
+                    return ServiceResult<bool>.SuccessResult();
+                }
+
+                return ServiceResult<bool>.FailureResult("Failed to update item.");
+
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<bool>.FailureResult("Exception thrown, failed to update item", ex);
             }
         }
     }

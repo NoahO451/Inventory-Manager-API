@@ -102,3 +102,47 @@ DROP COLUMN role;
 
 ALTER TABLE user_data
 DROP COLUMN username;
+);
+
+--changeset Decimal:5 context:#4 splitStatements:false
+--comment: add removed_ii table, add before delete trigger when deleting item from ii table
+CREATE TABLE removed_inventory_item (
+    removed_inventory_item_id BIGSERIAL PRIMARY KEY,
+    inventory_item_uuid UUID NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    sku TEXT,
+    cost INTEGER, -- stored in pennies
+    serial_number TEXT,
+    purchase_date TIMESTAMP,
+    supplier TEXT,
+    brand TEXT,
+    model TEXT,
+    quantity INTEGER NOT NULL,
+    reorder_quantity INTEGER, 
+    location TEXT,
+    expiration_date TIMESTAMP,
+    category INTEGER,
+    custom_package_uuid UUID,
+    item_weight_g integer, -- weight is stored in grams 
+    is_listed BOOLEAN NOT NULL,
+    is_lot BOOLEAN NOT NULL,
+    notes TEXT,
+    removed_date TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION func_backup_removed_ii_before_delete()
+RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    INSERT INTO removed_inventory_item(inventory_item_uuid, name, description, sku, cost, serial_number, purchase_date, supplier, brand, model, quantity, reorder_quantity, location, expiration_date, category, custom_package_uuid, item_weight_g, is_listed, is_lot, notes, removed_date)
+    VALUES (old.inventory_item_uuid, old.name, old.description, old.sku, oLd.cost, old.serial_number, old.purchase_date, old.supplier, old.brand, old.model, old.quantity, old.reorder_quantity, old.location, old.expiration_date, old.category, old.custom_package_uuid, old.item_weight_g, 
+    old.is_listed, old.is_lot, old.notes, CURRENT_TIMESTAMP::TIMESTAMP(0));
+RETURN OLD;
+END;
+$BODY$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_removed_ii
+    BEFORE DELETE ON inventory_item
+    FOR EACH ROW
+EXECUTE PROCEDURE func_backup_removed_ii_before_delete();

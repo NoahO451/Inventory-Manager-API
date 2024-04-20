@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "5556c46d-d03b-4976-8610-e6c47dd50697",
+		"_postman_id": "fa3c02dd-ecca-44e6-82f2-df4711a020af",
 		"name": "Inventory",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16766477"
+		"_exporter_id": "31846097"
 	},
 	"item": [
 		{
@@ -17,7 +17,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjc5OTI0MiwiZXhwIjoxNzEyODg1NjQyLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.fplwQdxE4vrI2n6xwTjv3m0xnl6gu-fhOAzdJjleG3V0c5Zt7XjDGlC9P-hQK7AAr9CIe2QeJC9sClipD1DEX1fNDHMz5MQ-DCynAuC7ARFJgC8VsorJw4FgTtB8eEozli-0DyDFluXw_WHC9AqXlbVGzaSJR_H5ACXUFH12gL3xps5_Fbl_F2MlHkqtunNRJxfJdRmCB6rt_JlmgOovoEs-fmhD47CAjGfl_Dx_pFvxiOarLdNhFFlM5BdGWFw7X9PE4fO4vIvThZ2Hwm-zKFRZWPB0-43oNVPtL1qjqjl2DnORsVUplMHDbh3L_i5q9r0ZeE9WPoVFt9MYXulI1Q",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjk4MDU5NSwiZXhwIjoxNzEzMDY2OTk1LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.UDdpiDvigdu469U9F3upGSw7qAnkDKn-H0SfRrnZOd30RgCPzRuFnUfIaIxgg-QUEjPKzu0LwEtZKA5Is2G6ybgKgs7F7G76lGSeRGE7LSjM0F9fEcrdkwpeHjTOPIqhDw0kCGxp5vSQ7C2R3-eQ_Ga0EkG-Jvy0GcBebu1gOgmwd7xDOBBWRdA3q8c9rmK4uc6R_JhAPMdRd2_TIWVkA0cmpb9uXkcDHgfCuEejml33tHtyQCJ3sk3sKBuIfywTQRQ-dLR3RbrhlKdQt195TcY7TNRLPso2XuKG6ZRkCVE0wj2MATknLurxVRF_MZ_vLgKTmaGqaeRDYPDsb8yRPw",
 							"type": "string"
 						}
 					]
@@ -154,6 +154,83 @@
 						"api",
 						"inventory",
 						"inventory-items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Inventory Item",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMjk4MDU5NSwiZXhwIjoxNzEzMDY2OTk1LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.UDdpiDvigdu469U9F3upGSw7qAnkDKn-H0SfRrnZOd30RgCPzRuFnUfIaIxgg-QUEjPKzu0LwEtZKA5Is2G6ybgKgs7F7G76lGSeRGE7LSjM0F9fEcrdkwpeHjTOPIqhDw0kCGxp5vSQ7C2R3-eQ_Ga0EkG-Jvy0GcBebu1gOgmwd7xDOBBWRdA3q8c9rmK4uc6R_JhAPMdRd2_TIWVkA0cmpb9uXkcDHgfCuEejml33tHtyQCJ3sk3sKBuIfywTQRQ-dLR3RbrhlKdQt195TcY7TNRLPso2XuKG6ZRkCVE0wj2MATknLurxVRF_MZ_vLgKTmaGqaeRDYPDsb8yRPw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6060/api/inventory/remove-inventory-item?uuid=93e053a8-b448-48e4-96ad-206f73f38ed5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6060",
+					"path": [
+						"api",
+						"inventory",
+						"remove-inventory-item"
+					],
+					"query": [
+						{
+							"key": "uuid",
+							"value": "93e053a8-b448-48e4-96ad-206f73f38ed5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Inventory Item",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9RZ1U4QThyMXFOQWdqRDhsYWxHaSJ9.eyJpc3MiOiJodHRwczovL2Rldi0xdHB0YTUxbzE3bzIzcjRlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtYnVzaW5lc3MtYXBpLmNvbSIsImlhdCI6MTcxMzU4NTU2NywiZXhwIjoxNzEzNjcxOTY3LCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJsYVFwZkRVenlOVXNGNkluZW9PZHlNeVNLUWI4alowdCJ9.XNHkEY9LyP8ZQ4wVDKILbMrH7O-L-JEuLni02mtUZqNP-Mdy1hDn9h3ANSRm9X5AJ6TMur9JuuoyQgQL8RkETPlPvlCEpEEO_tFv9rNHj796eghDYJyBCZ7O8aDxTH4ZRmB5xGVFYLW_lprm6lVblCjEWmFJghEUR62p70J4UVao5cTrKUwI4o8KNVizisCNQZCjgqRBklI1AoNW-rPgYNwUQiU6B0R7mbH9K9n58CXR4doU7nzvLxiJwyE40yizl03OxefURJsUDXSLiHVArtGcXIydq8ZHpEBFLoYLRxFvSycoWKvILsY-NlPyld4BGbUes46x7lXU48SPkVLgLw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:6060/api/inventory/update-inventory-item",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6060",
+					"path": [
+						"api",
+						"inventory",
+						"update-inventory-item"
 					]
 				}
 			},

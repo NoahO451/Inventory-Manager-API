@@ -5,6 +5,7 @@ using App.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System;
 
 namespace App.Controllers
 {
@@ -26,7 +27,7 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetInventoryItem([FromQuery]Guid id)
+        public async Task<IActionResult> GetInventoryItem([FromQuery] Guid id)
         {
             try
             {
@@ -62,7 +63,7 @@ namespace App.Controllers
             {
                 List<GetAllInventoryItemsResponse> inventoryItems = await _inventoryService.GetAllInventoryItems(userId, businessId);
 
-                if (inventoryItems == null) 
+                if (inventoryItems == null)
                 {
                     _logger.LogWarning("{trace} inventoryItems were null", LogHelper.TraceLog());
                     return BadRequest();
@@ -103,6 +104,57 @@ namespace App.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpDelete("remove-inventory-item")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RemoveInventoryItem([FromQuery] Guid uuid)
+        {
+            try
+            {
+                var response = await _inventoryService.RemovedItemResults(uuid);
+
+                if (response == null || !response.Success) 
+                { 
+                    return BadRequest(response?.ErrorMessage);
+                }
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPatch("update-inventory-item")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateInventoryItem(UpdatedInventoryItemRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var response = await _inventoryService.UpdatedItemResults(request);
+
+                if (response == null || !response.Success)
+                {
+                    return BadRequest(response?.ErrorMessage);
+                }
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

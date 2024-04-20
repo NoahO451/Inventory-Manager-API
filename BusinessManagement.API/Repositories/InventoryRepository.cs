@@ -17,6 +17,8 @@ namespace App.Repositories
         Task<InventoryItem> GetInventoryItem(Guid uuid);
         Task<List<InventoryItem>> RetrieveAllInventoryItems(Guid businessId);
         Task CreateInventoryItem(InventoryItem request, Guid businessUuid);
+        Task<bool> RemoveInventoryItem(Guid uuid);
+        Task<bool> UpdateInventoryItem(InventoryItem request);
     }
 
     public class InventoryRepository : IInventoryRepository
@@ -228,6 +230,77 @@ namespace App.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+            }
+        }
+        /// <summary>
+        /// Removes one inventory item and returns true or false if the item was removed
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        public async Task<bool> RemoveInventoryItem(Guid uuid)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                string removeInventoryItemSql = """
+                    DELETE FROM inventory_item ii WHERE ii.inventory_item_uuid = @SelectedIIUuid
+                    """;
+
+                var rowsRemoved = await connection.ExecuteAsync(removeInventoryItemSql, param: new { SelectedIIUuid = uuid });
+
+                if (rowsRemoved > 0) 
+                { 
+                    return true; 
+                } 
+
+                return false;
+            }
+        }
+        /// <summary>
+        /// Update one inventory item and returns true or false if the item has been updated
+        /// </summary>
+        /// <param name="inventoryItem"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateInventoryItem(InventoryItem inventoryItem)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                string updateIISql = """
+                    UPDATE 
+                        inventory_item
+                    SET 
+                        name = @Name,
+                        description = @Description,
+                        sku = @Sku,
+                        cost = @Cost,
+                        serial_number = @SerialNumber,
+                        purchase_date = @PurchaseDate,
+                        supplier = @Supplier,
+                        brand = @Brand,
+                        model = @Model,
+                        quantity = @Quantity,
+                        reorder_quantity = @ReorderQuantity,
+                        location = @Location,
+                        expiration_date = @ExpirationDate,
+                        category = @Category,
+                        custom_package_uuid = @CustomPackageUuid,
+                        item_weight_g = @ItemWeightG,
+                        is_listed = @IsListed,
+                        is_lot = @IsLot,
+                        notes = @Notes
+                    WHERE
+                        inventory_item_uuid = @InventoryItemUuid
+                    """;
+
+                var parameters = InventoryItemFlatten(inventoryItem); 
+
+                var rowsUpdated = await connection.ExecuteAsync(updateIISql, parameters);
+
+                if (rowsUpdated > 0) 
+                { 
+                    return true; 
+                } 
+
+                return false;
             }
         }
 
