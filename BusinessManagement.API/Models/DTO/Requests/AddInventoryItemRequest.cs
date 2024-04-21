@@ -10,7 +10,7 @@ namespace App.Models.DTO.Requests
         public string? SKU { get; set; }
         public decimal? Cost { get; set; }
         public string? SerialNumber { get; set; }
-        public DateTime PurchaseDate { get; set; }
+        public DateTime? PurchaseDate { get; set; }
         public string? Supplier { get; set; }
         public string? Brand { get; set; }
         public string? Model { get; set; }
@@ -27,13 +27,4 @@ namespace App.Models.DTO.Requests
         public Guid BusinessUuid { get; set; }
         public Guid UserUuid { get; set; }
     }
-
-    public class AddInventoryItemRequestValidator : AbstractValidator<AddInventoryItemRequest>
-    {
-        public AddInventoryItemRequestValidator()
-        {
-            RuleFor(x => x.Name).Length(10, 100);
-        }
-    }
-
 }

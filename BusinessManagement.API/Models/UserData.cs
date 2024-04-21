@@ -13,7 +13,7 @@ namespace App.Models
                 throw new ArgumentException("User is deleted", nameof(isDeleted));
 
             if (createdAt < DateTime.Now)
-                throw new ArgumentException("Created time cannot be in the past", nameof(createdAt));
+                throw new ArgumentException("Created at time cannot be in the past", nameof(createdAt));
 
             UserUuid = userUuid;
             Auth0Id = auth0Id;

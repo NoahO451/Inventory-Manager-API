@@ -9,7 +9,7 @@ namespace App.Services
 {
     public interface IUserService
     {
-        Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest request);
+        Task<ServiceResult<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest request);
         Task<ServiceResult<GetUserResponse>> GetUser(Guid uuid);
         Task<ServiceResult<UpdateUserDemographicsResponse>> UpdateUserDemographics(UpdateUserDemographicsRequest request);
         Task<ServiceResult> MarkUserAsDeleted(Guid uuid);
@@ -29,7 +29,7 @@ namespace App.Services
             _logger = logger;
         }
 
-        public async Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest req)
+        public async Task<ServiceResult<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest req)
         {
             try
             {
@@ -49,14 +49,10 @@ namespace App.Services
 
                 bool userCreated = await _userRepository.CreateNewUser(newUser);
 
-                var apiResponse = new ApiResponse<NewUserSignupResponse>();
-
                 if (!userCreated)
                 {
                     _logger.LogWarning("{trace} Failed to create new user", LogHelper.TraceLog());
-                    apiResponse.Message = "There was an error saving to the database.";
-                    apiResponse.Success = false;
-                    return apiResponse;
+                    return ServiceResult<NewUserSignupResponse>.FailureResult("There was an error saving to the database.");
                 }
 
                 var newUserResponse = new NewUserSignupResponse()
@@ -68,9 +64,7 @@ namespace App.Services
                     IsPremiumMember = newUser.IsPremiumMember
                 };
 
-                apiResponse.Data = newUserResponse;
-                apiResponse.Success = true;
-                return apiResponse;
+                return ServiceResult<NewUserSignupResponse>.SuccessResult(newUserResponse);
 
             }
             catch (Exception ex)

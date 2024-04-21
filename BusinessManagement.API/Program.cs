@@ -1,5 +1,5 @@
 using App.Middlewares;
-using App.Models.DTO.Requests;
+using App.Models.Validators;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

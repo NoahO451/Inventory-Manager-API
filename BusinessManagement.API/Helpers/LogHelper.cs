@@ -14,7 +14,7 @@ namespace App.Helpers
         /// </summary>
         /// <param name="memberName"></param>
         /// <param name="sourceLineNumber"></param>
-        /// <returns>The calling method name and the line number</returns>
+        /// <returns>The calling member, file path, and line number</returns>
         public static string TraceLog([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             StringBuilder sb = new();

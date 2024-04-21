@@ -27,12 +27,12 @@ namespace App.Controllers
         {
             try
             {
-                ApiResponse<NewUserSignupResponse> response = await _userService.NewUserSignup(request);
+                var response = await _userService.NewUserSignup(request);
 
                 if (response == null || !response.Success)
                 {
                     _logger.LogWarning("{trace} New user signup failed", LogHelper.TraceLog());
-                    return BadRequest(response.Message ?? "New user signup failed");
+                    return BadRequest(response?.ErrorMessage ?? "New user signup failed");
                 }
 
                 return CreatedAtAction(nameof(NewUserSignup), response.Data );
@@ -101,7 +101,7 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> MarkUserAsDeleted([FromRoute] Guid uuid)
+        public async Task<IActionResult> MarkUserAsDeleted(Guid uuid)
         {
             try
             {

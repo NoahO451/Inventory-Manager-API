@@ -2,12 +2,10 @@
 
 namespace App.Models.Validators
 {
-    public class UpdateInventoryItemRequestValidator : AbstractValidator<UpdateInventoryItemRequest>
+    public class AddInventoryItemRequestValidator : AbstractValidator<AddInventoryItemRequest>
     {
-        public UpdateInventoryItemRequestValidator()
+        public AddInventoryItemRequestValidator()
         {
-            // Not sure if this should be here or if we should only check in the domain object. Need to test performance. 
-            RuleFor(x => x.InventoryItemUuid).NotEmptyGuid();
             RuleFor(x => x.Name).NotEmpty().Length(1, 50);
             RuleFor(x => x.Description).Length(1, 500);
             RuleFor(x => x.SKU).Length(1, 16);

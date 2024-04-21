@@ -11,14 +11,9 @@ namespace App.Services
     {
         Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
         Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
-        /// <summary>
-        /// Insert a single inventory item into the database.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
-        Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
-        Task<ServiceResult<bool>> UpdatedItemResults(UpdateInventoryItemRequest inventoryItem);
+        Task<ServiceResult<Guid>> AddInventoryItem(AddInventoryItemRequest request);
+        Task<ServiceResult> RemovedItemResults(Guid uuid);
+        Task<ServiceResult> UpdatedItemResults(UpdateInventoryItemRequest inventoryItem);
     }
 
     public class InventoryService : IInventoryService
@@ -119,7 +114,7 @@ namespace App.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request)
+        public async Task<ServiceResult<Guid>> AddInventoryItem(AddInventoryItemRequest request)
         {
             try
             {
@@ -127,7 +122,7 @@ namespace App.Services
 
                 await _inventoryRepository.CreateInventoryItem(inventoryItem, request.BusinessUuid);
 
-                ApiResponse<Guid> apiResponse = new ApiResponse<Guid>() { Data = inventoryItem.InventoryItemUuid };
+                ServiceResult<Guid> apiResponse = new ServiceResult<Guid>() { Data = inventoryItem.InventoryItemUuid };
 
                 if (await _inventoryRepository.GetInventoryItem(inventoryItem.InventoryItemUuid) != null)
                 {
@@ -142,11 +137,11 @@ namespace App.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
-                return new ApiResponse<Guid>() { Success = false };
+                return new ServiceResult<Guid>() { Success = false };
             }
         }
 
-        public async Task<ServiceResult<bool>> RemovedItemResults(Guid uuid)
+        public async Task<ServiceResult> RemovedItemResults(Guid uuid)
         {
             try
             {
@@ -154,19 +149,19 @@ namespace App.Services
 
                 if (itemDeleted)
                 {
-                    return ServiceResult<bool>.SuccessResult();
+                    return ServiceResult.SuccessResult();
                 }
 
-                return ServiceResult<bool>.FailureResult("Failed to delete item.");
+                return ServiceResult.FailureResult("Failed to delete item.");
 
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete item", ex);
+                return ServiceResult.FailureResult("Exception thrown, failed to delete item", ex);
             }
         }
 
-        public async Task<ServiceResult<bool>> UpdatedItemResults(UpdateInventoryItemRequest request)
+        public async Task<ServiceResult> UpdatedItemResults(UpdateInventoryItemRequest request)
         {
             try
             {
@@ -176,15 +171,15 @@ namespace App.Services
 
                 if (itemUpdated)
                 {
-                    return ServiceResult<bool>.SuccessResult();
+                    return ServiceResult.SuccessResult();
                 }
 
-                return ServiceResult<bool>.FailureResult("Failed to update item.");
+                return ServiceResult.FailureResult("Failed to update item.");
 
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to update item", ex);
+                return ServiceResult.FailureResult("Exception thrown, failed to update item", ex);
             }
         }
     }

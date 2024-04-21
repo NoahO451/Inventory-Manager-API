@@ -16,7 +16,7 @@ namespace App.Repositories
     {
         Task<InventoryItem> GetInventoryItem(Guid uuid);
         Task<List<InventoryItem>> RetrieveAllInventoryItems(Guid businessId);
-        Task CreateInventoryItem(InventoryItem request, Guid businessUuid);
+        Task<bool> CreateInventoryItem(InventoryItem request, Guid businessUuid);
         Task<bool> RemoveInventoryItem(Guid uuid);
         Task<bool> UpdateInventoryItem(InventoryItem request);
     }
@@ -188,7 +188,7 @@ namespace App.Repositories
         /// <param name="inventoryItem"></param>
         /// <param name="businessUuid"></param>
         /// <returns></returns>
-        public async Task CreateInventoryItem(InventoryItem inventoryItem, Guid businessUuid)
+        public async Task<bool> CreateInventoryItem(InventoryItem inventoryItem, Guid businessUuid)
         {
             try
             {
@@ -217,19 +217,22 @@ namespace App.Repositories
                         int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
 
                         string insertBusinessInventoryItemSql = """
-                        INSERT INTO business_inventory_item (inventory_item_id, business_id)
+                        INSERT INTO business_inventory_items (inventory_item_id, business_id)
                         VALUES (@InventoryItemId, @BusinessId);
                         """;
 
                         await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
 
                         transaction.Commit();
+
+                        return true;
                     }
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                return false;
             }
         }
         /// <summary>

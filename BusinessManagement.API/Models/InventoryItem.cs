@@ -6,7 +6,7 @@ namespace App.Models
     {
         // Empty constructor is needed for Dapper to work
         public InventoryItem() {}
-        public InventoryItem(Guid inventoryItemUuid, DateTime purchaseDate, int? reorderQuantity, Guid? customPackageUuid,
+        public InventoryItem(Guid inventoryItemUuid, DateTime? purchaseDate, int? reorderQuantity, Guid? customPackageUuid,
                                   string? location, bool isListed, bool isLot, string? notes, Item item, ItemDetail itemDetail)
         {
             InventoryItemUuid = inventoryItemUuid;
