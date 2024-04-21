@@ -1,25 +1,29 @@
-﻿using App.Helpers;
-using App.Models.DTO.Requests;
+﻿using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
-using System;
 
 namespace App.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/inventory-items")]
     [Authorize]
     public class InventoryController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;
         private readonly ILogger<InventoryController> _logger;
+        private readonly IValidator<UpdateInventoryItemRequest> _updateInventoryValidator;
+        private readonly IValidator<AddInventoryItemRequest> _addInventoryValidator;
 
-        public InventoryController(IInventoryService inventoryService, ILogger<InventoryController> logger)
+        public InventoryController(IInventoryService inventoryService, 
+            ILogger<InventoryController> logger, 
+            IValidator<UpdateInventoryItemRequest> updateInventoryValidator, 
+            IValidator<AddInventoryItemRequest> addInventoryValidator)
         {
             _inventoryService = inventoryService;
+            _updateInventoryValidator = updateInventoryValidator;
+            _addInventoryValidator = addInventoryValidator;
             _logger = logger;
         }
 
@@ -131,15 +135,20 @@ namespace App.Controllers
             }
         }
 
-        [HttpPatch("update-inventory-item")]
+        [HttpPatch]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateInventoryItem(UpdatedInventoryItemRequest request)
+        public async Task<IActionResult> UpdateInventoryItem(UpdateInventoryItemRequest request)
         {
-            if (!ModelState.IsValid)
+            ValidationResult validationResult = _updateInventoryValidator.Validate(request);
+
+            if (!validationResult.IsValid)
             {
-                return BadRequest();
+                _logger.LogWarning("{trace} validation failed: {err}",
+                    LogHelper.TraceLog(), LogHelper.ErrorList(validationResult)); 
+
+                return BadRequest(validationResult.Errors);
             }
 
             try

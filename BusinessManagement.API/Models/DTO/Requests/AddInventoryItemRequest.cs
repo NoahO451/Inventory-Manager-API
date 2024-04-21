@@ -1,4 +1,7 @@
-﻿namespace App.Models.DTO.Requests
+﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
+
+namespace App.Models.DTO.Requests
 {
     public class AddInventoryItemRequest
     {
@@ -23,6 +26,14 @@
         public string? Notes { get; set; }
         public Guid BusinessUuid { get; set; }
         public Guid UserUuid { get; set; }
-
     }
+
+    public class AddInventoryItemRequestValidator : AbstractValidator<AddInventoryItemRequest>
+    {
+        public AddInventoryItemRequestValidator()
+        {
+            RuleFor(x => x.Name).Length(10, 100);
+        }
+    }
+
 }

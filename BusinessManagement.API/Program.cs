@@ -1,8 +1,8 @@
 using App.Middlewares;
+using App.Models.DTO.Requests;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Serilog;
@@ -10,7 +10,6 @@ using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Templates;
 using Serilog.Templates.Themes;
-using System.Reflection;
 using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
@@ -97,6 +96,8 @@ try
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IAuth0Service, Auth0Service>();
+
+    builder.Services.AddValidatorsFromAssemblyContaining<AddInventoryItemRequestValidator>();
 
     builder.Services.AddHttpClient("Auth0Domain", httpClient =>
     {

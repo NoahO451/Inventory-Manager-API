@@ -27,5 +27,17 @@ namespace App.Helpers
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Takes a list of fluent validation errors and returns them as a log-friendly list
+        /// </summary>
+        /// <param name="validationResult"></param>
+        /// <returns>Returns fluent validation errors in the form of {Property} : {Error Message}</returns>
+        public static List<string> ErrorList(ValidationResult validationResult)
+        {
+            return validationResult.Errors
+                .Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
+                .ToList();
+        }
     }
 }

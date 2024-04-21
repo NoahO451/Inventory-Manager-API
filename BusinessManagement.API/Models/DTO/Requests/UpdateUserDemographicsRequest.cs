@@ -1,4 +1,5 @@
 ﻿using App.Models.ValueObjects;
+using FluentValidation;
 
 namespace App.Models.DTO.Requests
 {

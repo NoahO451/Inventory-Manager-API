@@ -4,7 +4,6 @@ using App.Models.DTO.Mappers;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Repositories;
-using Azure;
 
 namespace App.Services
 {
@@ -19,7 +18,7 @@ namespace App.Services
         /// <returns></returns>
         Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
         Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
-        Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest inventoryItem);
+        Task<ServiceResult<bool>> UpdatedItemResults(UpdateInventoryItemRequest inventoryItem);
     }
 
     public class InventoryService : IInventoryService
@@ -167,7 +166,7 @@ namespace App.Services
             }
         }
 
-        public async Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest request)
+        public async Task<ServiceResult<bool>> UpdatedItemResults(UpdateInventoryItemRequest request)
         {
             try
             {
