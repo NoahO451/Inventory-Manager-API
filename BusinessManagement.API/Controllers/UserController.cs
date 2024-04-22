@@ -51,6 +51,12 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUser(Guid uuid)
         {
+            if (Guid.Empty == uuid)
+            {
+                _logger.LogWarning("{trace} uuid was empty", LogHelper.TraceLog());
+                return BadRequest();
+            }
+
             try
             {
                 var result = await _userService.GetUser(uuid);
@@ -103,6 +109,12 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> MarkUserAsDeleted(Guid uuid)
         {
+            if (Guid.Empty == uuid)
+            {
+                _logger.LogWarning("{trace} uuid was empty", LogHelper.TraceLog());
+                return BadRequest();
+            }
+
             try
             {
                 var result = await _userService.MarkUserAsDeleted(uuid);

@@ -1,14 +1,15 @@
 --liquibase formatted sql
 
---changeset Carl:1 context:#8
+--changeset Carl:1 context:#19
 --comment: Initial
 CREATE TABLE user_data (
     user_id SERIAL PRIMARY KEY,
     user_uuid UUID NOT NULL,
     auth0_id TEXT UNIQUE NOT NULL,
     full_name TEXT UNIQUE NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
+    first_name TEXT NULL,
+    last_name TEXT NULL,
+    nickname TEXT NOT NULL, 
     email TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_login TIMESTAMP,

@@ -38,7 +38,7 @@ namespace App.Services
                 UserData newUser = new UserData(
                     NewUserUuid,
                     new Auth0Id(req.FullAuth0Id),
-                    new Name(req.FirstName, req.LastName),
+                    new Name(req.FullName, req.Nickname),
                     new Email(req.Email),
                     null,
                     DateTime.UtcNow,
@@ -58,8 +58,10 @@ namespace App.Services
                 var newUserResponse = new NewUserSignupResponse()
                 {
                     UserUuid = newUser.UserUuid,
-                    FirstName = req.FirstName,
-                    LastName = req.LastName,
+                    FullName = newUser.Name.FullName,
+                    FirstName = newUser.Name.FirstName,
+                    LastName = newUser.Name.LastName,
+                    Nickname = newUser.Name.Nickname,
                     Email = newUser.Email.EmailAddress,
                     IsPremiumMember = newUser.IsPremiumMember
                 };
@@ -90,6 +92,7 @@ namespace App.Services
                 Auth0UserId = user.Auth0Id.Auth0UserId,
                 FirstName = user.Name.FirstName, 
                 LastName = user.Name.LastName,
+                Nickname = user.Name.Nickname,
                 Businesses = user.Businesses,
                 LastLogin = user.LastLogin,
                 IsPremiumMember = user.IsPremiumMember, 
@@ -114,9 +117,14 @@ namespace App.Services
 
                 string? previousEmail = null;
 
-                if (user.Name.FirstName != req.FirstName || user.Name.LastName != req.LastName)
+                string? fullName = string.IsNullOrWhiteSpace(req.FullName) ? user.Name.FullName : req.FullName;
+                string? nickName = string.IsNullOrWhiteSpace(req.Nickname) ? user.Name.Nickname : req.Nickname;
+
+                if (fullName != user.Name.FullName || nickName != user.Name.Nickname)
                 {
-                    user.SetName(req.FirstName, req.LastName);
+                    Name newName = new Name(fullName, nickName);
+
+                    user.SetName(newName);
                     updateRequired = true;
                 }
 
@@ -129,7 +137,9 @@ namespace App.Services
                         return ServiceResult<UpdateUserDemographicsResponse>.FailureResult(auth0UpdateResult.ErrorMessage ?? "Failed to update Auth0 email.");
                     }
 
-                    user.SetEmail(req.EmailAddress);
+                    Email newEmail = new Email(req.EmailAddress);
+
+                    user.SetEmail(newEmail);
                     updateRequired = true;
                 }
                 if (updateRequired)
@@ -177,8 +187,10 @@ namespace App.Services
 
                 UpdateUserDemographicsResponse userResponse = new UpdateUserDemographicsResponse() 
                 {
-                    FirstName = user.Name.FirstName,
+                    FullName = user.Name.FullName,
+                    FirstName = user.Name.FirstName, 
                     LastName = user.Name.LastName,
+                    Nickname = user.Name.Nickname,
                     EmailAddress = user.Email.EmailAddress
                 };
 

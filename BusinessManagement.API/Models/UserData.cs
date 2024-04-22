@@ -33,19 +33,23 @@ namespace App.Models
         /// Takes in the full auth id, identity provider included. Example: auth0|123456
         /// </summary>
         /// <param name="fullAuth0Id"></param>
-        public void SetAuth0Id(string fullAuth0Id)
+        public void SetAuth0Id(Auth0Id fullAuth0Id)
         {
-            Auth0Id = new Auth0Id(fullAuth0Id);
+            Auth0Id = fullAuth0Id;
         }
 
-        public void SetName(string firstName, string lastName)
+        /// <summary>
+        /// Used to set the full name, first name, last name, and/or nickname
+        /// </summary>
+        /// <param name="name"></param>
+        public void SetName(Name name)
         {
-            Name = new Name(firstName, lastName);
+            Name = name;
         }
 
-        public void SetEmail(string emailAddress)
+        public void SetEmail(Email email)
         {
-            Email = new Email(emailAddress);
+            Email = email;
         }
 
         public Guid UserUuid { get; private set; }
