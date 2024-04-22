@@ -9,8 +9,8 @@ namespace App.Services
 {
     public interface IInventoryService
     {
-        Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
-        Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
+        Task<ServiceResult<GetInventoryItemResponse>> GetInventoryItem(Guid uuid);
+        Task<ServiceResult<List<GetAllInventoryItemsResponse>>> GetAllInventoryItems(Guid userId, Guid businessId);
         Task<ServiceResult<Guid>> AddInventoryItem(AddInventoryItemRequest request);
         Task<ServiceResult> RemovedItemResults(Guid uuid);
         Task<ServiceResult> UpdatedItemResults(UpdateInventoryItemRequest inventoryItem);
@@ -27,14 +27,14 @@ namespace App.Services
             _logger = logger;
         }
 
-        public async Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid)
+        public async Task<ServiceResult<GetInventoryItemResponse>> GetInventoryItem(Guid uuid)
         {
             InventoryItem item = await _inventoryRepository.GetInventoryItem(uuid);
 
             if (item == null)
             {
                 _logger.LogWarning("{trace} item was null", LogHelper.TraceLog());
-                return new GetInventoryItemResponse();
+                return ServiceResult<GetInventoryItemResponse>.FailureResult("Item was null");
             }
 
             var response = new GetInventoryItemResponse
@@ -63,10 +63,10 @@ namespace App.Services
                 Model = item.ItemDetail.Model
             };
 
-            return response;
+            return ServiceResult<GetInventoryItemResponse>.SuccessResult(response);
         }
 
-        public async Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId)
+        public async Task<ServiceResult<List<GetAllInventoryItemsResponse>>> GetAllInventoryItems(Guid userId, Guid businessId)
         {
 
             List<InventoryItem> inventoryItems = await _inventoryRepository.RetrieveAllInventoryItems(businessId);
@@ -76,7 +76,7 @@ namespace App.Services
             if (inventoryItems == null || inventoryItems.Count == 0)
             {
                 _logger.LogWarning("{trace} inventoryItems null or empty", LogHelper.TraceLog());
-                return response;
+                return ServiceResult<List<GetAllInventoryItemsResponse>>.FailureResult("InventoryItems null or empty");
             }
 
             foreach (InventoryItem item in inventoryItems)
@@ -106,7 +106,7 @@ namespace App.Services
                 });
             }
 
-            return response;
+            return ServiceResult<List<GetAllInventoryItemsResponse>>.SuccessResult(response);
         }
 
         /// <summary>

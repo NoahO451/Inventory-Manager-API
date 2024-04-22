@@ -42,15 +42,15 @@ namespace App.Controllers
 
             try
             {
-                var inventoryItem = await _inventoryService.GetInventoryItem(uuid);
+                var result = await _inventoryService.GetInventoryItem(uuid);
 
-                if (inventoryItem == null)
+                if (result == null || !result.Success)
                 {
                    _logger.LogWarning("{trace} InventoryItem was null", LogHelper.TraceLog());
                     return BadRequest();
                 }
 
-                return Ok(inventoryItem);
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
@@ -73,15 +73,15 @@ namespace App.Controllers
 
             try
             {
-                List<GetAllInventoryItemsResponse> inventoryItems = await _inventoryService.GetAllInventoryItems(userId, businessId);
+                var result = await _inventoryService.GetAllInventoryItems(userId, businessId);
 
-                if (inventoryItems == null)
+                if (result == null || !result.Success)
                 {
                     _logger.LogWarning("{trace} inventoryItems were null", LogHelper.TraceLog());
                     return BadRequest();
                 }
 
-                return Ok(inventoryItems);
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
@@ -108,15 +108,15 @@ namespace App.Controllers
 
             try
             {
-                var response = await _inventoryService.AddInventoryItem(request);
+                var result = await _inventoryService.AddInventoryItem(request);
 
-                if (response == null || !response.Success)
+                if (result == null || !result.Success)
                 {
-                    _logger.LogWarning("{trace} response was null", LogHelper.TraceLog());
+                    _logger.LogWarning("{trace} result was null", LogHelper.TraceLog());
                     return BadRequest();
                 }
 
-                return CreatedAtAction(nameof(AddInventoryItem), new { id = response.Data });
+                return CreatedAtAction(nameof(AddInventoryItem), new { id = result.Data });
             }
             catch (Exception ex)
             {
@@ -133,12 +133,12 @@ namespace App.Controllers
         {
             try
             {
-                var response = await _inventoryService.RemovedItemResults(uuid);
+                var result = await _inventoryService.RemovedItemResults(uuid);
 
-                if (response == null || !response.Success) 
+                if (result == null || !result.Success) 
                 {
-                    _logger.LogWarning("{trace} response was null", LogHelper.TraceLog());
-                    return BadRequest(response?.ErrorMessage);
+                    _logger.LogWarning("{trace} result was null", LogHelper.TraceLog());
+                    return BadRequest(result?.ErrorMessage);
                 }
 
                 return NoContent();
@@ -168,12 +168,12 @@ namespace App.Controllers
 
             try
             {
-                var response = await _inventoryService.UpdatedItemResults(request);
+                var result = await _inventoryService.UpdatedItemResults(request);
 
-                if (response == null || !response.Success)
+                if (result == null || !result.Success)
                 {
-                    _logger.LogWarning("{trace} response was null", LogHelper.TraceLog());
-                    return BadRequest(response?.ErrorMessage);
+                    _logger.LogWarning("{trace} result was null", LogHelper.TraceLog());
+                    return BadRequest(result?.ErrorMessage);
                 }
 
                 return NoContent();

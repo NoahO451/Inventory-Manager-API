@@ -9,6 +9,9 @@ namespace App.Models
         public InventoryItem(Guid inventoryItemUuid, DateTime? purchaseDate, int? reorderQuantity, Guid? customPackageUuid,
                                   string? location, bool isListed, bool isLot, string? notes, Item item, ItemDetail itemDetail)
         {
+            if (inventoryItemUuid == Guid.Empty)
+                throw new ArgumentException("Uuid empty", nameof(inventoryItemUuid));
+
             InventoryItemUuid = inventoryItemUuid;
             PurchaseDate = purchaseDate;
             ReorderQuantity = reorderQuantity;

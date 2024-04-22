@@ -9,6 +9,9 @@ namespace App.Models
         public UserData(Guid userUuid, Auth0Id auth0Id, Name name, Email email, UserBusiness? businesses,
             DateTime createdAt, DateTime? lastLogin, bool isPremiumMember, bool isDeleted)
         {
+            if (userUuid == Guid.Empty)
+                throw new ArgumentException("Uuid empty", nameof(userUuid));
+
             if (isDeleted)
                 throw new ArgumentException("User is deleted", nameof(isDeleted));
 

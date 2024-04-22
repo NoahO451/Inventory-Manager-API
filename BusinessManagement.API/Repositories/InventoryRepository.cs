@@ -37,7 +37,7 @@ namespace App.Repositories
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        public async Task<InventoryItem> GetInventoryItem(Guid uuid)
+        public async Task<InventoryItem?> GetInventoryItem(Guid uuid)
         {
             IEnumerable<InventoryItem>? result = null;
 
@@ -83,6 +83,8 @@ namespace App.Repositories
                         sql,
                         (invItem, item, itemDetail) =>
                         {
+                            if (invItem.InventoryItemUuid == Guid.Empty)
+                                throw new ArgumentException("Uuid empty", nameof(invItem));
                             invItem.Item = item;
                             invItem.ItemDetail = itemDetail;
                             return invItem;
@@ -94,10 +96,10 @@ namespace App.Repositories
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
-                    return result.FirstOrDefault();
+                    return result?.FirstOrDefault();
                 }
             }
-            return result.FirstOrDefault();
+            return result?.FirstOrDefault();
         }
 
         /// <summary>
