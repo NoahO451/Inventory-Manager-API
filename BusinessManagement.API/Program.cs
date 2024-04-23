@@ -3,13 +3,17 @@ using App.Models.Validators;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Templates;
 using Serilog.Templates.Themes;
+using System.Net;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
@@ -33,6 +37,10 @@ try
 
     builder.WebHost.ConfigureKestrel(serverOptions =>
     {
+        serverOptions.Listen(IPAddress.Any, 6060, listenOptions =>
+        {
+            listenOptions.UseHttps();
+        });
         serverOptions.AddServerHeader = false;
     });
 
@@ -72,8 +80,7 @@ try
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                var audience =
-                      builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_AUDIENCE");
+                var audience = builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_AUDIENCE");
 
                 options.Authority =
                       $"https://{builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_DOMAIN")}/";
@@ -86,8 +93,86 @@ try
             })
     );
 
+    builder.Services.AddAuthorization(options =>
+    {
+        //var domain = builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_DOMAIN");
+        //options.AddPolicy("update:users", policy => policy.Requirements.Add(new
+        //HasScopeRequirement("update:users", domain)));
+
+        options.AddPolicy("UpdateUsers", policy =>
+                  policy.RequireClaim("permissions", "update:users"));
+    });
+
+    builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
     // configure strongly typed settings object
     builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
+
+    builder.Services.AddSwaggerGen(options =>
+    {
+        var domain = builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_DOMAIN");
+        var audience = builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_AUDIENCE");
+
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "API Documentation",
+            Version = "v1.0",
+            Description = ""
+        });
+
+        options.ResolveConflictingActions(x => x.First());
+        //options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+        //{
+        //    Type = SecuritySchemeType.OAuth2,
+        //    BearerFormat = "JWT",
+        //    Flows = new OpenApiOAuthFlows
+        //    {
+        //        Implicit = new OpenApiOAuthFlow
+        //        {
+
+        //            TokenUrl = new Uri($"https://{domain}/oauth/token"),
+        //            AuthorizationUrl = new Uri($"https://{domain}/authorize?audience={audience}"),
+        //            Scopes = new Dictionary<string, string>
+        //            {
+        //                { "openid", "OpenId" }
+        //            }
+        //        }
+        //    }
+        //});
+        options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.OAuth2,
+            BearerFormat = "JWT",
+            Flows = new OpenApiOAuthFlows
+            {
+                AuthorizationCode = new OpenApiOAuthFlow
+                {
+                    AuthorizationUrl = new Uri($"https://{domain}/authorize?audience={audience}"),
+                    TokenUrl = new Uri($"https://{domain}/oauth/token"),
+                    Scopes = new Dictionary<string, string>
+                    {                       
+                        { "openid", "OpenID Connect" },
+                        { "profile", "User profile information" }
+                    }
+                }
+            }
+        });
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+      {
+          {
+              new OpenApiSecurityScheme
+              {
+                  Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
+              },
+              new[] { "openid" }
+          }
+      });
+
+        //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        //options.IncludeXmlComments(xmlPath);
+    });
+
 
     // configure DI for application services
     builder.Services.AddSingleton<DataContext>();
@@ -147,11 +232,22 @@ try
     app.Urls.Add(
         $"http://+:{app.Configuration.GetValue<string>("Auth0Settings:PORT")}");
 
+    app.UseSwagger();
+    app.UseSwaggerUI(settings =>
+    {
+        string? clientId = app.Configuration.GetValue<string>("ClientId");
+        string? clientSecret = app.Configuration.GetValue<string>("ClientSecret");
+
+        settings.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1.0");
+        settings.OAuthClientId(clientId);
+        settings.OAuthClientSecret(clientSecret);
+        settings.OAuthUsePkce();
+    });
+
     app.UseErrorHandler();
     app.UseSecureHeaders();
     app.MapControllers();
     app.UseCors();
-
     app.UseAuthentication();
     app.UseAuthorization();
 
