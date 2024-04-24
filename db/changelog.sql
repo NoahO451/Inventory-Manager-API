@@ -42,7 +42,7 @@ CREATE TABLE inventory_item (
 );
 
 CREATE TABLE business_inventory_item (
-    inventory_item_id BIGSERIAL, 
+    inventory_item_id INTEGER, 
     business_id INTEGER,
     PRIMARY KEY (inventory_item_id, business_id)
 );
@@ -70,4 +70,26 @@ CREATE TABLE custom_package (
     width_cm INTEGER, -- package dimensions are stored in cm
     height_cm INTEGER, 
     length_cm INTEGER
+);
+
+CREATE TABLE role (
+    role_id SERIAL PRIMARY KEY,
+    role_name TEXT NOT NULL
+);
+
+CREATE TABLE permission (
+    permission_id SERIAL PRIMARY KEY,
+    permission_name TEXT NOT NULL
+);
+
+CREATE TABLE role_permission (
+    role_id INTEGER,
+    permission_id INTEGER,
+    PRIMARY KEY (role_id, permission_id)   
+);
+
+CREATE TABLE user_role (
+    user_id INTEGER,
+    role_id INTEGER,
+    PRIMARY KEY (user_id, role_id)   
 );
