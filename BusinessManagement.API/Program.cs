@@ -4,6 +4,7 @@ using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
@@ -76,10 +77,13 @@ try
         x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
+    JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
     builder.Host.ConfigureServices((services) =>
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.MapInboundClaims = false;
                 var audience = builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_AUDIENCE");
 
                 options.Authority =
@@ -93,12 +97,14 @@ try
             })
     );
 
+    // Custom policy provider
+    builder.Services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
+
+    // Register the custom authorization handler
+    builder.Services.AddScoped<IAuthorizationHandler, PermissionRequirementHandler>();
+
     builder.Services.AddAuthorization(options =>
     {
-        //var domain = builder.Configuration.GetValue<string>("Auth0Settings:AUTH0_DOMAIN");
-        //options.AddPolicy("update:users", policy => policy.Requirements.Add(new
-        //HasScopeRequirement("update:users", domain)));
-
         options.AddPolicy("UpdateUsers", policy =>
                   policy.RequireClaim("permissions", "update:users"));
     });
@@ -150,15 +156,16 @@ try
                     AuthorizationUrl = new Uri($"https://{domain}/authorize?audience={audience}"),
                     TokenUrl = new Uri($"https://{domain}/oauth/token"),
                     Scopes = new Dictionary<string, string>
-                    {                       
+                    {
                         { "openid", "OpenID Connect" },
                         { "profile", "User profile information" }
                     }
                 }
             }
         });
+
         options.AddSecurityRequirement(new OpenApiSecurityRequirement
-      {
+        {
           {
               new OpenApiSecurityScheme
               {
@@ -168,9 +175,8 @@ try
           }
       });
 
-        //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-        //options.IncludeXmlComments(xmlPath);
+        options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
     });
 
 
@@ -181,6 +187,8 @@ try
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IAuth0Service, Auth0Service>();
+    builder.Services.AddScoped<IUserRolePermissionRepository, UserRolePermissionRepository>();
+    
 
     builder.Services.AddValidatorsFromAssemblyContaining<AddInventoryItemRequestValidator>();
 
