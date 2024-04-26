@@ -109,8 +109,6 @@ try
                   policy.RequireClaim("permissions", "update:users"));
     });
 
-    builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-
     // configure strongly typed settings object
     builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
 
