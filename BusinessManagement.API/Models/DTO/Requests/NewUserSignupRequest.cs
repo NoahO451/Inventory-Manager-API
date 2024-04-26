@@ -1,6 +1,4 @@
-﻿using App.Models.ValueObjects;
-
-namespace App.Models.DTO.Requests
+﻿namespace App.Models.DTO.Requests
 {
     public class NewUserSignupRequest
     {

@@ -254,7 +254,16 @@ try
 
     app.UseErrorHandler();
     app.UseSecureHeaders();
-    app.MapControllers();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapControllers().AllowAnonymous();
+    } 
+    else
+    {
+        app.MapControllers();
+    }
+
     app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();

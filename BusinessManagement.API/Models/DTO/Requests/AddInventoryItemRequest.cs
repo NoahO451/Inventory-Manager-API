@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace App.Models.DTO.Requests
 {

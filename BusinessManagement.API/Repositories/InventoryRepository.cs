@@ -219,7 +219,7 @@ namespace App.Repositories
                         int businessId = await connection.QueryFirstOrDefaultAsync<int>(getBusinessIdSQL, new { BusinessUuid = businessUuid });
 
                         string insertBusinessInventoryItemSql = """
-                        INSERT INTO business_inventory_items (inventory_item_id, business_id)
+                        INSERT INTO business_inventory_item (inventory_item_id, business_id)
                         VALUES (@InventoryItemId, @BusinessId);
                         """;
 

@@ -33,8 +33,6 @@ namespace App.Middlewares
                 {
                     string? authId = context.User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
-                    authId = "";
-
                     if (string.IsNullOrWhiteSpace(authId))
                     {
                         _logger.LogWarning("{trace} Failed to get user permissions", LogHelper.TraceLog());

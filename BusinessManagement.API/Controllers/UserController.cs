@@ -44,8 +44,8 @@ namespace App.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("{uuid}")]
+        [Authorize("get:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -76,8 +76,8 @@ namespace App.Controllers
             }
         }
 
-        [Authorize]
         [HttpPatch]
+        [Authorize("update:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -102,8 +102,8 @@ namespace App.Controllers
             }
         }
 
-        [Authorize]
         [HttpPatch("{uuid}")]
+        [Authorize("delete:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

@@ -29,6 +29,7 @@ namespace App.Controllers
         }
 
         [HttpGet("{uuid}")]
+        [Authorize("get:inventory-item")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -60,6 +61,7 @@ namespace App.Controllers
         }
 
         [HttpGet("user/{userId}/business/{businessId}")]
+        [Authorize("get:inventory-item")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -91,6 +93,7 @@ namespace App.Controllers
         }
 
         [HttpPost]
+        [Authorize("create:inventory-item")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -126,6 +129,7 @@ namespace App.Controllers
         }
 
         [HttpDelete("{uuid}")]
+        [Authorize("delete:inventory-item")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -151,6 +155,7 @@ namespace App.Controllers
         }
 
         [HttpPatch]
+        [Authorize("update:inventory-item")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
