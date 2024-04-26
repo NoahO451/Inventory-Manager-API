@@ -16,7 +16,7 @@ namespace App.Repositories
     {
         Task<InventoryItem> GetInventoryItem(Guid uuid);
         Task<List<InventoryItem>> RetrieveAllInventoryItems(Guid businessId);
-        Task CreateInventoryItem(InventoryItem request, Guid businessUuid);
+        Task<bool> CreateInventoryItem(InventoryItem request, Guid businessUuid);
         Task<bool> RemoveInventoryItem(Guid uuid);
         Task<bool> UpdateInventoryItem(InventoryItem request);
     }
@@ -37,7 +37,7 @@ namespace App.Repositories
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        public async Task<InventoryItem> GetInventoryItem(Guid uuid)
+        public async Task<InventoryItem?> GetInventoryItem(Guid uuid)
         {
             IEnumerable<InventoryItem>? result = null;
 
@@ -83,6 +83,8 @@ namespace App.Repositories
                         sql,
                         (invItem, item, itemDetail) =>
                         {
+                            if (invItem.InventoryItemUuid == Guid.Empty)
+                                throw new ArgumentException("Uuid empty", nameof(invItem));
                             invItem.Item = item;
                             invItem.ItemDetail = itemDetail;
                             return invItem;
@@ -94,10 +96,10 @@ namespace App.Repositories
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
-                    return result.FirstOrDefault();
+                    return result?.FirstOrDefault();
                 }
             }
-            return result.FirstOrDefault();
+            return result?.FirstOrDefault();
         }
 
         /// <summary>
@@ -188,7 +190,7 @@ namespace App.Repositories
         /// <param name="inventoryItem"></param>
         /// <param name="businessUuid"></param>
         /// <returns></returns>
-        public async Task CreateInventoryItem(InventoryItem inventoryItem, Guid businessUuid)
+        public async Task<bool> CreateInventoryItem(InventoryItem inventoryItem, Guid businessUuid)
         {
             try
             {
@@ -224,12 +226,15 @@ namespace App.Repositories
                         await connection.ExecuteAsync(insertBusinessInventoryItemSql, new { InventoryItemId = inventoryItemId, BusinessId = businessId });
 
                         transaction.Commit();
+
+                        return true;
                     }
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                return false;
             }
         }
         /// <summary>

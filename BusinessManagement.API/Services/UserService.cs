@@ -9,7 +9,7 @@ namespace App.Services
 {
     public interface IUserService
     {
-        Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest request);
+        Task<ServiceResult<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest request);
         Task<ServiceResult<GetUserResponse>> GetUser(Guid uuid);
         Task<ServiceResult<UpdateUserDemographicsResponse>> UpdateUserDemographics(UpdateUserDemographicsRequest request);
         Task<ServiceResult> MarkUserAsDeleted(Guid uuid);
@@ -29,7 +29,7 @@ namespace App.Services
             _logger = logger;
         }
 
-        public async Task<ApiResponse<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest req)
+        public async Task<ServiceResult<NewUserSignupResponse>> NewUserSignup(NewUserSignupRequest req)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace App.Services
                 UserData newUser = new UserData(
                     NewUserUuid,
                     new Auth0Id(req.FullAuth0Id),
-                    new Name(req.FirstName, req.LastName),
+                    new Name(req.FullName, req.Nickname),
                     new Email(req.Email),
                     null,
                     DateTime.UtcNow,
@@ -49,28 +49,24 @@ namespace App.Services
 
                 bool userCreated = await _userRepository.CreateNewUser(newUser);
 
-                var apiResponse = new ApiResponse<NewUserSignupResponse>();
-
                 if (!userCreated)
                 {
                     _logger.LogWarning("{trace} Failed to create new user", LogHelper.TraceLog());
-                    apiResponse.Message = "There was an error saving to the database.";
-                    apiResponse.Success = false;
-                    return apiResponse;
+                    return ServiceResult<NewUserSignupResponse>.FailureResult("There was an error saving to the database.");
                 }
 
                 var newUserResponse = new NewUserSignupResponse()
                 {
                     UserUuid = newUser.UserUuid,
-                    FirstName = req.FirstName,
-                    LastName = req.LastName,
+                    FullName = newUser.Name.FullName,
+                    FirstName = newUser.Name.FirstName,
+                    LastName = newUser.Name.LastName,
+                    Nickname = newUser.Name.Nickname,
                     Email = newUser.Email.EmailAddress,
                     IsPremiumMember = newUser.IsPremiumMember
                 };
 
-                apiResponse.Data = newUserResponse;
-                apiResponse.Success = true;
-                return apiResponse;
+                return ServiceResult<NewUserSignupResponse>.SuccessResult(newUserResponse);
 
             }
             catch (Exception ex)
@@ -96,6 +92,7 @@ namespace App.Services
                 Auth0UserId = user.Auth0Id.Auth0UserId,
                 FirstName = user.Name.FirstName, 
                 LastName = user.Name.LastName,
+                Nickname = user.Name.Nickname,
                 Businesses = user.Businesses,
                 LastLogin = user.LastLogin,
                 IsPremiumMember = user.IsPremiumMember, 
@@ -120,9 +117,14 @@ namespace App.Services
 
                 string? previousEmail = null;
 
-                if (user.Name.FirstName != req.FirstName || user.Name.LastName != req.LastName)
+                string? fullName = string.IsNullOrWhiteSpace(req.FullName) ? user.Name.FullName : req.FullName;
+                string? nickName = string.IsNullOrWhiteSpace(req.Nickname) ? user.Name.Nickname : req.Nickname;
+
+                if (fullName != user.Name.FullName || nickName != user.Name.Nickname)
                 {
-                    user.SetName(req.FirstName, req.LastName);
+                    Name newName = new Name(fullName, nickName);
+
+                    user.SetName(newName);
                     updateRequired = true;
                 }
 
@@ -135,7 +137,9 @@ namespace App.Services
                         return ServiceResult<UpdateUserDemographicsResponse>.FailureResult(auth0UpdateResult.ErrorMessage ?? "Failed to update Auth0 email.");
                     }
 
-                    user.SetEmail(req.EmailAddress);
+                    Email newEmail = new Email(req.EmailAddress);
+
+                    user.SetEmail(newEmail);
                     updateRequired = true;
                 }
                 if (updateRequired)
@@ -183,8 +187,10 @@ namespace App.Services
 
                 UpdateUserDemographicsResponse userResponse = new UpdateUserDemographicsResponse() 
                 {
-                    FirstName = user.Name.FirstName,
+                    FullName = user.Name.FullName,
+                    FirstName = user.Name.FirstName, 
                     LastName = user.Name.LastName,
+                    Nickname = user.Name.Nickname,
                     EmailAddress = user.Email.EmailAddress
                 };
 

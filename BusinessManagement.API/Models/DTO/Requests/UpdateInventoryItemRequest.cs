@@ -1,6 +1,6 @@
 ﻿namespace App.Models.DTO.Requests
 {
-    public class UpdatedInventoryItemRequest
+    public class UpdateInventoryItemRequest
     {
         public Guid InventoryItemUuid { get; set; }
         public string Name { get; set; }

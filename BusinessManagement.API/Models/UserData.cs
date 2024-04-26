@@ -9,11 +9,14 @@ namespace App.Models
         public UserData(Guid userUuid, Auth0Id auth0Id, Name name, Email email, UserBusiness? businesses,
             DateTime createdAt, DateTime? lastLogin, bool isPremiumMember, bool isDeleted)
         {
+            if (userUuid == Guid.Empty)
+                throw new ArgumentException("Uuid empty", nameof(userUuid));
+
             if (isDeleted)
                 throw new ArgumentException("User is deleted", nameof(isDeleted));
 
             if (createdAt < DateTime.Now)
-                throw new ArgumentException("Created time cannot be in the past", nameof(createdAt));
+                throw new ArgumentException("Created at time cannot be in the past", nameof(createdAt));
 
             UserUuid = userUuid;
             Auth0Id = auth0Id;
@@ -30,19 +33,23 @@ namespace App.Models
         /// Takes in the full auth id, identity provider included. Example: auth0|123456
         /// </summary>
         /// <param name="fullAuth0Id"></param>
-        public void SetAuth0Id(string fullAuth0Id)
+        public void SetAuth0Id(Auth0Id fullAuth0Id)
         {
-            Auth0Id = new Auth0Id(fullAuth0Id);
+            Auth0Id = fullAuth0Id;
         }
 
-        public void SetName(string firstName, string lastName)
+        /// <summary>
+        /// Used to set the full name, first name, last name, and/or nickname
+        /// </summary>
+        /// <param name="name"></param>
+        public void SetName(Name name)
         {
-            Name = new Name(firstName, lastName);
+            Name = name;
         }
 
-        public void SetEmail(string emailAddress)
+        public void SetEmail(Email email)
         {
-            Email = new Email(emailAddress);
+            Email = email;
         }
 
         public Guid UserUuid { get; private set; }

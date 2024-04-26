@@ -25,7 +25,7 @@ namespace App.Models.DTO.Mappers
             );
         }
 
-        public static InventoryItem FromRequest(UpdatedInventoryItemRequest req)
+        public static InventoryItem FromRequest(UpdateInventoryItemRequest req)
         {
             var item = new Item(req.Name, req.Description, req.Cost, req.Quantity, req.ExpirationDate, req.Category, req.ItemWeightG);
             var itemDetail = new ItemDetail(req.SKU, req.SerialNumber, req.Supplier, req.Brand, req.Model);

@@ -20,11 +20,17 @@ namespace App.Helpers
             return new NpgsqlConnection(connectionString);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task Init()
         {
             // todo
             //await _initDatabase();
             //await _initTables();
+            // AWAIT _initRolesAndPermissions();
         }
     }
 }
