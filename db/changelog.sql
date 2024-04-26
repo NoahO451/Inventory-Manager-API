@@ -146,6 +146,9 @@ VALUES ('b492be78-9a2f-4899-b516-79963418b985', 'test business',	0, 'test', Fals
 INSERT INTO user_business (user_id, business_id)
 VALUES (1, 1);
 
+INSERT INTO role (role_name)
+VALUES ('owner');
+
 INSERT INTO user_role (user_id, role_id)
 VALUES (1, 1);
 
