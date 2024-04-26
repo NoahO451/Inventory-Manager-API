@@ -83,17 +83,17 @@ namespace App.Services
         private async Task<string?> GenerateManagementToken()
         {
             Auth0Settings? settings = _configuration.GetSection("Auth0Settings").Get<Auth0Settings>();
-            string? clientId = _configuration.GetValue<string>("ClientId");
-            string? clientSecret = _configuration.GetValue<string>("ClientSecret");
+            string? ManagementClientId = _configuration.GetValue<string>("ManagementClientId");
+            string? ManagementClientSecret = _configuration.GetValue<string>("ManagementClientSecret");
 
-            if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
+            if (string.IsNullOrEmpty(ManagementClientId) || string.IsNullOrEmpty(ManagementClientSecret))
                 return null;
 
             string path = "/oauth/token";
 
             var request = new HttpRequestMessage(HttpMethod.Post, path);
             request.Headers.Add("Accept", "application/json");
-            var jsonContent = $"{{\"client_id\":\"{clientId}\",\"client_secret\":\"{clientSecret}\",\"audience\":\"https://dev-1tpta51o17o23r4e.us.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}}";
+            var jsonContent = $"{{\"client_id\":\"{ManagementClientId}\",\"client_secret\":\"{ManagementClientSecret}\",\"audience\":\"https://dev-1tpta51o17o23r4e.us.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}}";
             var content = new StringContent(jsonContent, null, "application/json");
 
             request.Content = content;

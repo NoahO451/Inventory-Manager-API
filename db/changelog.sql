@@ -1,29 +1,16 @@
 --liquibase formatted sql
 
---changeset Carl:1 context:#8
---comment: this is a test table that will be deleted soon.
-CREATE TABLE accounts (
-  user_id SERIAL PRIMARY KEY, 
-  username VARCHAR (50) UNIQUE NOT NULL, 
-  password VARCHAR (50) NOT NULL, 
-  email VARCHAR (255) UNIQUE NOT NULL, 
-  created_at TIMESTAMP NOT NULL, 
-  last_login TIMESTAMP
-);
-
---changeset Carl:2 context:#9
---comment: this is a test table that will be deleted soon.
-DROP TABLE accounts;
-
+--changeset Carl:1 context:#19
+--comment: Initial
 CREATE TABLE user_data (
     user_id SERIAL PRIMARY KEY,
     user_uuid UUID NOT NULL,
     auth0_id TEXT UNIQUE NOT NULL,
-    username TEXT UNIQUE NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    first_name TEXT NULL,
+    last_name TEXT NULL,
+    nickname TEXT NOT NULL, 
     email TEXT NOT NULL,
-    role INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_login TIMESTAMP,
     is_premium_member BOOLEAN NOT NULL,
@@ -55,7 +42,7 @@ CREATE TABLE inventory_item (
 );
 
 CREATE TABLE business_inventory_item (
-    inventory_item_id BIGSERIAL, 
+    inventory_item_id INTEGER, 
     business_id INTEGER,
     PRIMARY KEY (inventory_item_id, business_id)
 );
@@ -75,9 +62,6 @@ CREATE TABLE business (
     is_deleted BOOLEAN
 );
 
---changeset Carl:3 context:#9
---comment: added custom packaging table, removed packaging ID and added foreign key to inventory_items for packages
--- Create custom_package table
 CREATE TABLE custom_package (
     custom_package_id BIGSERIAL PRIMARY KEY,
     custom_package_uuid UUID NOT NULL,
@@ -88,61 +72,73 @@ CREATE TABLE custom_package (
     length_cm INTEGER
 );
 
--- Alter table to add constraint
-ALTER TABLE example_table
-ADD CONSTRAINT valid_timestamp CHECK (
-    event_timestamp > '-infinity'::timestamp AND
-    event_timestamp < 'infinity'::timestamp
+CREATE TABLE role (
+    role_id SERIAL PRIMARY KEY,
+    role_name TEXT NOT NULL
 );
 
---changeset Carl:4 context:#16
---comment: Removed role from user data
-ALTER TABLE user_data
-DROP COLUMN role;
-
-ALTER TABLE user_data
-DROP COLUMN username;
+CREATE TABLE permission (
+    permission_id SERIAL PRIMARY KEY,
+    permission_name TEXT NOT NULL
 );
 
---changeset Decimal:5 context:#4 splitStatements:false
---comment: add removed_ii table, add before delete trigger when deleting item from ii table
-CREATE TABLE removed_inventory_item (
-    removed_inventory_item_id BIGSERIAL PRIMARY KEY,
-    inventory_item_uuid UUID NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT,
-    sku TEXT,
-    cost INTEGER, -- stored in pennies
-    serial_number TEXT,
-    purchase_date TIMESTAMP,
-    supplier TEXT,
-    brand TEXT,
-    model TEXT,
-    quantity INTEGER NOT NULL,
-    reorder_quantity INTEGER, 
-    location TEXT,
-    expiration_date TIMESTAMP,
-    category INTEGER,
-    custom_package_uuid UUID,
-    item_weight_g integer, -- weight is stored in grams 
-    is_listed BOOLEAN NOT NULL,
-    is_lot BOOLEAN NOT NULL,
-    notes TEXT,
-    removed_date TIMESTAMP
+CREATE TABLE role_permission (
+    role_id INTEGER,
+    permission_id INTEGER,
+    PRIMARY KEY (role_id, permission_id)   
 );
 
-CREATE OR REPLACE FUNCTION func_backup_removed_ii_before_delete()
-RETURNS TRIGGER AS
-$BODY$
-BEGIN
-    INSERT INTO removed_inventory_item(inventory_item_uuid, name, description, sku, cost, serial_number, purchase_date, supplier, brand, model, quantity, reorder_quantity, location, expiration_date, category, custom_package_uuid, item_weight_g, is_listed, is_lot, notes, removed_date)
-    VALUES (old.inventory_item_uuid, old.name, old.description, old.sku, oLd.cost, old.serial_number, old.purchase_date, old.supplier, old.brand, old.model, old.quantity, old.reorder_quantity, old.location, old.expiration_date, old.category, old.custom_package_uuid, old.item_weight_g, 
-    old.is_listed, old.is_lot, old.notes, CURRENT_TIMESTAMP::TIMESTAMP(0));
-RETURN OLD;
-END;
-$BODY$ LANGUAGE plpgsql;
+CREATE TABLE user_role (
+    user_id INTEGER,
+    role_id INTEGER,
+    PRIMARY KEY (user_id, role_id)   
+);
 
-CREATE TRIGGER trg_removed_ii
-    BEFORE DELETE ON inventory_item
-    FOR EACH ROW
-EXECUTE PROCEDURE func_backup_removed_ii_before_delete();
+INSERT INTO permission (permission_name)
+VALUES ('create:user');
+INSERT INTO permission (permission_name)
+VALUES ('get:user');
+INSERT INTO permission (permission_name)
+VALUES ('delete:user');
+INSERT INTO permission (permission_name)
+VALUES ('update:user');
+INSERT INTO permission (permission_name)
+VALUES ('create:inventory-item');
+INSERT INTO permission (permission_name)
+VALUES ('get:inventory-item');
+INSERT INTO permission (permission_name)
+VALUES ('delete:inventory-item');
+INSERT INTO permission (permission_name)
+VALUES ('update:inventory-item');
+
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 1);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 2);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 3);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 4);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 5);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 6);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 7);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 8);
+INSERT INTO role_permission (role_id, permission_id)
+VALUES (1, 9);
+
+
+INSERT INTO user_data (user_uuid, auth0_id, full_name, first_name, last_name, nickname, email, created_at, last_login, is_premium_member, is_deleted)
+VALUES ('e7bd758c-e8bb-45f0-ab4d-e7a331b60729','auth0|65fe478e4e87f7a8c0a6684a', 'Carl Ryckeley', 'Carl', 'Ryckeley','Carl The Great', 'bm-app@carlthegreat.com', NOW(), NOW(), False, False);
+
+INSERT INTO business (business_uuid, business_name, business_type, business_industry, is_deleted)
+VALUES ('b492be78-9a2f-4899-b516-79963418b985', 'test business',	0, 'test', False);
+
+INSERT INTO user_business (user_id, business_id)
+VALUES (1, 1);
+
+INSERT INTO user_role (user_id, role_id)
+VALUES (1, 1);

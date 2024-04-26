@@ -27,15 +27,15 @@ namespace App.Controllers
         {
             try
             {
-                ApiResponse<NewUserSignupResponse> response = await _userService.NewUserSignup(request);
+                var result = await _userService.NewUserSignup(request);
 
-                if (response == null || !response.Success)
+                if (result == null || !result.Success)
                 {
                     _logger.LogWarning("{trace} New user signup failed", LogHelper.TraceLog());
-                    return BadRequest(response.Message ?? "New user signup failed");
+                    return BadRequest(result?.ErrorMessage ?? "New user signup failed");
                 }
 
-                return CreatedAtAction(nameof(NewUserSignup), response.Data );
+                return CreatedAtAction(nameof(NewUserSignup), result.Data );
             }
             catch (Exception ex)
             {
@@ -44,24 +44,30 @@ namespace App.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("{uuid}")]
+        [Authorize("get:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUser(Guid uuid)
         {
+            if (Guid.Empty == uuid)
+            {
+                _logger.LogWarning("{trace} uuid was empty", LogHelper.TraceLog());
+                return BadRequest();
+            }
+
             try
             {
-                var response = await _userService.GetUser(uuid);
+                var result = await _userService.GetUser(uuid);
 
-                if (response == null || !response.Success)
+                if (result == null || !result.Success)
                 {
                     _logger.LogWarning("{trace} get user failed", LogHelper.TraceLog());
-                    return BadRequest(response?.ErrorMessage);
+                    return BadRequest(result?.ErrorMessage);
                 }
 
-                return Ok(response.Data);
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
@@ -70,8 +76,8 @@ namespace App.Controllers
             }
         }
 
-        [Authorize]
         [HttpPatch]
+        [Authorize("update:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -79,15 +85,15 @@ namespace App.Controllers
         {
             try
             {
-                var response = await _userService.UpdateUserDemographics(request);
+                var result = await _userService.UpdateUserDemographics(request);
 
-                if (response == null || !response.Success)
+                if (result == null || !result.Success)
                 {
-                    _logger.LogWarning("{trace} response was null or failed", LogHelper.TraceLog());
-                    return BadRequest(response?.ErrorMessage);
+                    _logger.LogWarning("{trace} result was null or failed", LogHelper.TraceLog());
+                    return BadRequest(result?.ErrorMessage);
                 }
 
-                return Ok(response.Data);
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
@@ -96,21 +102,27 @@ namespace App.Controllers
             }
         }
 
-        [Authorize]
         [HttpPatch("{uuid}")]
+        [Authorize("delete:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> MarkUserAsDeleted([FromRoute] Guid uuid)
+        public async Task<IActionResult> MarkUserAsDeleted(Guid uuid)
         {
+            if (Guid.Empty == uuid)
+            {
+                _logger.LogWarning("{trace} uuid was empty", LogHelper.TraceLog());
+                return BadRequest();
+            }
+
             try
             {
-                var response = await _userService.MarkUserAsDeleted(uuid);
+                var result = await _userService.MarkUserAsDeleted(uuid);
 
-                if (response == null || !response.Success)
+                if (result == null || !result.Success)
                 {
                     _logger.LogWarning("{trace} mark user deleted failed", LogHelper.TraceLog());
-                    return BadRequest(response?.ErrorMessage);
+                    return BadRequest(result?.ErrorMessage);
                 }
 
                 return Ok();

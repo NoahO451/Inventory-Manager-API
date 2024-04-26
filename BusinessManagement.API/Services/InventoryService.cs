@@ -4,22 +4,16 @@ using App.Models.DTO.Mappers;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Repositories;
-using Azure;
 
 namespace App.Services
 {
     public interface IInventoryService
     {
-        Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid);
-        Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId);
-        /// <summary>
-        /// Insert a single inventory item into the database.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request);
-        Task<ServiceResult<bool>> RemovedItemResults(Guid uuid);
-        Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest inventoryItem);
+        Task<ServiceResult<GetInventoryItemResponse>> GetInventoryItem(Guid uuid);
+        Task<ServiceResult<List<GetAllInventoryItemsResponse>>> GetAllInventoryItems(Guid userId, Guid businessId);
+        Task<ServiceResult<Guid>> AddInventoryItem(AddInventoryItemRequest request);
+        Task<ServiceResult> RemovedItemResults(Guid uuid);
+        Task<ServiceResult> UpdatedItemResults(UpdateInventoryItemRequest inventoryItem);
     }
 
     public class InventoryService : IInventoryService
@@ -33,14 +27,14 @@ namespace App.Services
             _logger = logger;
         }
 
-        public async Task<GetInventoryItemResponse> GetInventoryItem(Guid uuid)
+        public async Task<ServiceResult<GetInventoryItemResponse>> GetInventoryItem(Guid uuid)
         {
             InventoryItem item = await _inventoryRepository.GetInventoryItem(uuid);
 
             if (item == null)
             {
                 _logger.LogWarning("{trace} item was null", LogHelper.TraceLog());
-                return new GetInventoryItemResponse();
+                return ServiceResult<GetInventoryItemResponse>.FailureResult("Item was null");
             }
 
             var response = new GetInventoryItemResponse
@@ -69,10 +63,10 @@ namespace App.Services
                 Model = item.ItemDetail.Model
             };
 
-            return response;
+            return ServiceResult<GetInventoryItemResponse>.SuccessResult(response);
         }
 
-        public async Task<List<GetAllInventoryItemsResponse>> GetAllInventoryItems(Guid userId, Guid businessId)
+        public async Task<ServiceResult<List<GetAllInventoryItemsResponse>>> GetAllInventoryItems(Guid userId, Guid businessId)
         {
 
             List<InventoryItem> inventoryItems = await _inventoryRepository.RetrieveAllInventoryItems(businessId);
@@ -82,7 +76,7 @@ namespace App.Services
             if (inventoryItems == null || inventoryItems.Count == 0)
             {
                 _logger.LogWarning("{trace} inventoryItems null or empty", LogHelper.TraceLog());
-                return response;
+                return ServiceResult<List<GetAllInventoryItemsResponse>>.FailureResult("InventoryItems null or empty");
             }
 
             foreach (InventoryItem item in inventoryItems)
@@ -112,7 +106,7 @@ namespace App.Services
                 });
             }
 
-            return response;
+            return ServiceResult<List<GetAllInventoryItemsResponse>>.SuccessResult(response);
         }
 
         /// <summary>
@@ -120,7 +114,7 @@ namespace App.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<ApiResponse<Guid>> AddInventoryItem(AddInventoryItemRequest request)
+        public async Task<ServiceResult<Guid>> AddInventoryItem(AddInventoryItemRequest request)
         {
             try
             {
@@ -128,7 +122,7 @@ namespace App.Services
 
                 await _inventoryRepository.CreateInventoryItem(inventoryItem, request.BusinessUuid);
 
-                ApiResponse<Guid> apiResponse = new ApiResponse<Guid>() { Data = inventoryItem.InventoryItemUuid };
+                ServiceResult<Guid> apiResponse = new ServiceResult<Guid>() { Data = inventoryItem.InventoryItemUuid };
 
                 if (await _inventoryRepository.GetInventoryItem(inventoryItem.InventoryItemUuid) != null)
                 {
@@ -143,11 +137,11 @@ namespace App.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
-                return new ApiResponse<Guid>() { Success = false };
+                return new ServiceResult<Guid>() { Success = false };
             }
         }
 
-        public async Task<ServiceResult<bool>> RemovedItemResults(Guid uuid)
+        public async Task<ServiceResult> RemovedItemResults(Guid uuid)
         {
             try
             {
@@ -155,19 +149,19 @@ namespace App.Services
 
                 if (itemDeleted)
                 {
-                    return ServiceResult<bool>.SuccessResult();
+                    return ServiceResult.SuccessResult();
                 }
 
-                return ServiceResult<bool>.FailureResult("Failed to delete item.");
+                return ServiceResult.FailureResult("Failed to delete item.");
 
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to delete item", ex);
+                return ServiceResult.FailureResult("Exception thrown, failed to delete item", ex);
             }
         }
 
-        public async Task<ServiceResult<bool>> UpdatedItemResults(UpdatedInventoryItemRequest request)
+        public async Task<ServiceResult> UpdatedItemResults(UpdateInventoryItemRequest request)
         {
             try
             {
@@ -177,15 +171,15 @@ namespace App.Services
 
                 if (itemUpdated)
                 {
-                    return ServiceResult<bool>.SuccessResult();
+                    return ServiceResult.SuccessResult();
                 }
 
-                return ServiceResult<bool>.FailureResult("Failed to update item.");
+                return ServiceResult.FailureResult("Failed to update item.");
 
             }
             catch (Exception ex)
             {
-                return ServiceResult<bool>.FailureResult("Exception thrown, failed to update item", ex);
+                return ServiceResult.FailureResult("Exception thrown, failed to update item", ex);
             }
         }
     }

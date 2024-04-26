@@ -1,12 +1,10 @@
-﻿using App.Models.ValueObjects;
-
-namespace App.Models.DTO.Requests
+﻿namespace App.Models.DTO.Requests
 {
     public class NewUserSignupRequest
     {
-        public string FullAuth0Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        public string FullAuth0Id { get; init; }
+        public string FullName { get; init; }
+        public string Nickname { get; init; }
+        public string Email { get; init; }
     }
 }

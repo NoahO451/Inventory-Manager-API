@@ -41,8 +41,10 @@ namespace App.Repositories
                 {
                     UserUuid = user.UserUuid,
                     Auth0Id = user.Auth0Id.Auth0UserId,
+                    FullName = user.Name.FullName,
                     FirstName = user.Name.FirstName,
                     LastName = user.Name.LastName,
+                    Nickname = user.Name.Nickname,
                     Email = user.Email.EmailAddress,
                     CreatedAt = user.CreatedAt,
                     LastLogin = user.LastLogin,
@@ -51,8 +53,8 @@ namespace App.Repositories
                 };
 
                 string sql = """
-                    INSERT INTO user_data (user_uuid, auth0_id, first_name, last_name, email, created_at, last_login, is_premium_member, is_deleted) 
-                    VALUES (@UserUuid, @Auth0Id, @FirstName, @LastName, @Email, @CreatedAt, @LastLogin, @IsPremiumMember, @IsDeleted);
+                    INSERT INTO user_data (user_uuid, auth0_id, full_name, first_name, last_name, nickname, email, created_at, last_login, is_premium_member, is_deleted) 
+                    VALUES (@UserUuid, @Auth0Id, @FullName, @FirstName, @LastName, @Nickname, @Email, @CreatedAt, @LastLogin, @IsPremiumMember, @IsDeleted);
                     """;
 
                 int affectedRows = await connection.ExecuteAsync(sql, parameters);
@@ -86,8 +88,10 @@ namespace App.Repositories
 
                         auth0_id AS Auth0UserId,
 
+                        full_name AS FullName,
                         first_name AS FirstName,
                         last_name AS LastName,
+                        nickname AS Nickname,
 
                         email AS EmailAddress
                     FROM 
@@ -99,14 +103,14 @@ namespace App.Repositories
                     sql,
                     (userData, auth0Id, name, email) =>
                     {
-                        userData.SetAuth0Id(auth0Id.Auth0UserId);
-                        userData.SetName(name.FirstName, name.LastName);
-                        userData.SetEmail(email.EmailAddress);
+                        userData.SetAuth0Id(auth0Id);
+                        userData.SetName(name);
+                        userData.SetEmail(email);
 
                         return userData;
                     },
                     new { UserUuid = uuid },
-                    splitOn: "Auth0UserId,FirstName,EmailAddress"
+                    splitOn: "Auth0UserId,FullName,EmailAddress"
                     );
 
                 return user?.FirstOrDefault();
@@ -126,8 +130,10 @@ namespace App.Repositories
                     UPDATE 
                         user_data
                     SET 
+                        full_name = @FullName,
                         first_name = @FirstName, 
                         last_name = @LastName, 
+                        nickname = @Nickname,
                         email = @EmailAddress
                     WHERE 
                         user_uuid = @Uuid
@@ -136,8 +142,10 @@ namespace App.Repositories
                 var parameters = new
                 {
                     Uuid = user.UserUuid,
+                    FullName = user.Name.FullName,
                     FirstName = user.Name.FirstName,
                     LastName = user.Name.LastName,
+                    Nickname = user.Name.Nickname,
                     EmailAddress = user.Email.EmailAddress
                 };
 
