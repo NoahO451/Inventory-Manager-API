@@ -8,7 +8,7 @@ namespace App.Models.ValueObjects
         public Name(string fullName, string nickname)
         {
             if (string.IsNullOrWhiteSpace(fullName))
-                throw new ArgumentException("FullName name was null or whitespace", nameof(fullName));
+                throw new ArgumentException("Full name was null or whitespace", nameof(fullName));
 
             if (string.IsNullOrWhiteSpace(nickname))
                 throw new ArgumentException("Nickname was null or whitespace", nameof(nickname));

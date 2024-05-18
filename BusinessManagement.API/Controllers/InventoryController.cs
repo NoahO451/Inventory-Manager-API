@@ -27,7 +27,11 @@ namespace App.Controllers
             _addInventoryValidator = addInventoryValidator;
             _logger = logger;
         }
-
+        /// <summary>
+        /// Get Inventory Item by ID
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         [HttpGet("{uuid}")]
         [Authorize("get:inventory-item")]
         [ProducesResponseType(StatusCodes.Status200OK)]
