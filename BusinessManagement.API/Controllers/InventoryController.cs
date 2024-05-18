@@ -28,7 +28,7 @@ namespace App.Controllers
             _logger = logger;
         }
         /// <summary>
-        /// Get Inventory Item by ID
+        /// Get inventory item by ID.
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
@@ -64,6 +64,12 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Get all inventory items owned by business.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="businessId"></param>
+        /// <returns></returns>
         [HttpGet("user/{userId}/business/{businessId}")]
         [Authorize("get:inventory-item")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -96,6 +102,11 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Create a new inventory item.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize("create:inventory-item")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -132,6 +143,11 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete an inventory item using its ID. 
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         [HttpDelete("{uuid}")]
         [Authorize("delete:inventory-item")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -158,6 +174,11 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Update an existing inventory item. 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPatch]
         [Authorize("update:inventory-item")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
