@@ -193,6 +193,8 @@
 			VALUES ('S corporation');
 			INSERT INTO business_structure_type (bst_name)
 			VALUES ('Limited liability company');
+			INSERT INTO business_structure_type (bst_name)
+			VALUES ('Not listed');
         </sql>
     </changeSet>
 

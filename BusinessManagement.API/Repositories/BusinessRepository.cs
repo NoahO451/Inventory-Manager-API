@@ -5,7 +5,7 @@ namespace App.Repositories
 {
     public interface IBusinessRepository
     {
-        Task<bool> CreateNewBusiness(Business business, Guid onwerUuid);
+        Task<bool> CreateNewBusiness(Business business);
     }
 
     /// <summary>
@@ -28,14 +28,14 @@ namespace App.Repositories
         /// <param name="business"></param>
         /// <param name="ownerUuid"></param>
         /// <returns></returns>
-        public async Task<bool> CreateNewBusiness(Business business, Guid ownerUuid)
+        public async Task<bool> CreateNewBusiness(Business business)
         {
             using (var connection = _context.CreateConnection())
             {
                 var parameters = new
                 {
                     BusinessUuid = business.BusinessUuid,
-                    OwnerUuid = ownerUuid,
+                    OwnerUuid = business.BusinessOwnerUuid,
                     BusinessFullname = business.BusinessName.BusinessFullName,
                     BusinessDisplayName = business.BusinessName.BusinessDisplayName,
                     BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
