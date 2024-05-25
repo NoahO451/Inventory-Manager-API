@@ -9,7 +9,8 @@ namespace App.Services
 
     public interface IBusinessService
     {
-        Task<ServiceResult<CreateNewBusinessResponse>> CreateNewBusiness(CreateNewBusinessResponse response);
+        Task<ServiceResult<BusinessResponse>> CreateNewBusiness(BusinessResponse response);
+        Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid);
     }
     public class BusinessService : IBusinessService
     {
@@ -23,7 +24,7 @@ namespace App.Services
             _logger = logger;
         }
 
-        public async Task<ServiceResult<CreateNewBusinessResponse>> CreateNewBusiness(CreateNewBusinessResponse response)
+        public async Task<ServiceResult<BusinessResponse>> CreateNewBusiness(BusinessResponse response)
         {
             try
             {
@@ -43,10 +44,10 @@ namespace App.Services
                 if (!businessCreated)
                 {
                     _logger.LogWarning("{trace} Failed to create new business", LogHelper.TraceLog());
-                    return ServiceResult<CreateNewBusinessResponse>.FailureResult("There was an error saving to the database.");
+                    return ServiceResult<BusinessResponse>.FailureResult("There was an error saving to the database.");
                 }
 
-                var newBusinessResponse = new CreateNewBusinessResponse()
+                var newBusinessResponse = new BusinessResponse()
                 {
                     BusinessUuid = newBusiness.BusinessUuid,
                     BusinessOwnerUuid = newBusiness.BusinessOwnerUuid,
@@ -57,7 +58,7 @@ namespace App.Services
                     BusinessIndustry = newBusiness.BusinessIndustry,
                 };
 
-                return ServiceResult<CreateNewBusinessResponse>.SuccessResult(newBusinessResponse);
+                return ServiceResult<BusinessResponse>.SuccessResult(newBusinessResponse);
 
             }
             catch (Exception ex)
@@ -65,6 +66,31 @@ namespace App.Services
                 _logger.LogError(ex, "{trace} Exception Thrown", LogHelper.TraceLog());
                 throw;
             }
+        }
+
+        public async Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid)
+        {
+            Business? business = await _businessrepository.GetBusinessByUuid(uuid);
+            
+            if (business == null || business.IsDeleted)
+            {
+                _logger.LogWarning("{trace} Business null or deleted", LogHelper.TraceLog());
+                return ServiceResult<BusinessResponse>.FailureResult("Error getting the business.");
+            }
+
+            var businessResponse = new BusinessResponse()
+            {
+                BusinessUuid = business.BusinessUuid,
+                BusinessOwnerUuid = business.BusinessOwnerUuid,
+                BusinessFullname = business.BusinessName.BusinessFullName,
+                BusinessDisplayName = business.BusinessName.BusinessDisplayName,
+                BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
+                CountryCode = business.BusinessStructure.CountryCode,
+                BusinessIndustry = business.BusinessIndustry,
+                IsDeleted = business.IsDeleted
+            };
+
+            return ServiceResult<BusinessResponse>.SuccessResult(businessResponse);
         }
     }
 }

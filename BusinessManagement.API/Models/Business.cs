@@ -26,8 +26,8 @@ namespace App.Models
 
         public Guid BusinessUuid { get; private set; }
         public Guid BusinessOwnerUuid { get; private set; }
-        public BusinessName BusinessName { get; private set; }
-        public BusinessStructure BusinessStructure { get; private set; }
+        public BusinessName BusinessName { get; set; }
+        public BusinessStructure BusinessStructure { get; set; }
         public string BusinessIndustry { get; private set; }
         public bool IsDeleted { get; private set; }
     }
