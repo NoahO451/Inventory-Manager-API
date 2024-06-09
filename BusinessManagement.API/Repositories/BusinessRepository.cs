@@ -111,7 +111,27 @@ namespace App.Repositories
 
         public async Task<bool> MarkBusinessAsDeleted(Guid uuid)
         {
-            throw new NotImplementedException();
+            using (var connection = _context.CreateConnection())
+            {
+                string sql = """
+                    UPDATE 
+                        business
+                    SET 
+                        is_deleted = true
+                    WHERE 
+                        business_uuid = @BusinessUuid;
+                    """;
+
+                int rowsUpdated = await connection.ExecuteAsync(sql, new { BusinessUuid = uuid });
+
+                if (rowsUpdated > 0)
+                {
+                    return true;
+                }
+
+                _logger.LogWarning("{trace} No datebase rows affected", LogHelper.TraceLog());
+                return false;
+            }
         }
     }
 }

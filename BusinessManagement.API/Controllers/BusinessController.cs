@@ -85,5 +85,41 @@ namespace App.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
+
+        /// <summary>
+        /// Marks business as deleted using its ID.
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        [HttpPatch("{uuid}")]
+        [Authorize("delete:business")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> MarkBusinessAsDeleted(Guid uuid)
+        {
+            if (Guid.Empty == uuid)
+            {
+                _logger.LogWarning("{trace} uuid was empty", LogHelper.TraceLog());
+                return BadRequest();
+            }
+            try
+            {
+                var result = await _businessService.MarkBusinessAsDeleted(uuid);
+
+                if (result == null || !result.Success)
+                {
+                    _logger.LogWarning("{trace} mark business deleted failed", LogHelper.TraceLog());
+                    return BadRequest(result?.ErrorMessage);
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

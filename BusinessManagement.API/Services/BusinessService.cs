@@ -11,6 +11,7 @@ namespace App.Services
     {
         Task<ServiceResult<BusinessResponse>> CreateNewBusiness(BusinessResponse response);
         Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid);
+        Task<ServiceResult> MarkBusinessAsDeleted(Guid uuid);
     }
     public class BusinessService : IBusinessService
     {
@@ -91,6 +92,27 @@ namespace App.Services
             };
 
             return ServiceResult<BusinessResponse>.SuccessResult(businessResponse);
+        }
+
+        public async Task<ServiceResult> MarkBusinessAsDeleted(Guid uuid)
+        {
+            try
+            {
+                bool businessSetDeleted = await _businessrepository.MarkBusinessAsDeleted(uuid);
+
+                if (businessSetDeleted)
+                {
+                    return ServiceResult.SuccessResult();
+                }
+
+                _logger.LogWarning("{trace} Failed to delete business", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("Failed to delete business");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("Exception thrown, failed to delete business", ex);
+            }
         }
     }
 }
