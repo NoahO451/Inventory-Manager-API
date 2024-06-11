@@ -1,4 +1,5 @@
-﻿using App.Models.DTO.Responses;
+﻿using App.Models;
+using App.Models.DTO.Responses;
 using App.Repositories;
 using App.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -35,8 +36,8 @@ namespace App.Controllers
 
                 if (result == null || !result.Success)
                 {
-                    _logger.LogWarning("{trace} New business creation failed", LogHelper.TraceLog());
-                    return BadRequest(result?.ErrorMessage ?? "New business creation failed");
+                    _logger.LogWarning("{trace} new business creation failed", LogHelper.TraceLog());
+                    return BadRequest(result?.ErrorMessage ?? "new business creation failed");
                 }
 
                 return CreatedAtAction(nameof(CreateNewBusiness), result.Data);
@@ -44,11 +45,11 @@ namespace App.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-        
+
         /// <summary>
         /// Get business information using business' ID.
         /// </summary>
@@ -81,7 +82,7 @@ namespace App.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -117,7 +118,43 @@ namespace App.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+        /// <summary>
+        /// Get all businesses under the specified user.
+        /// </summary>
+        /// <param name="userUuid"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize("get:businesses")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllBusinesses(Guid userUuid)
+        {
+            if (Guid.Empty == userUuid)
+            {
+                _logger.LogWarning("{trace} uuid was empty", LogHelper.TraceLog());
+                return BadRequest();
+            }
+
+            try
+            {
+                var result = await _businessService.GetAllBusnesses(userUuid);
+
+                if (result == null || !result.Success)
+                {
+                    _logger.LogWarning("{trace} businesses were null", LogHelper.TraceLog());
+                    return BadRequest();
+                }
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

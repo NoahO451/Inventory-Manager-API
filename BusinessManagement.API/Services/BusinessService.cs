@@ -12,6 +12,7 @@ namespace App.Services
         Task<ServiceResult<BusinessResponse>> CreateNewBusiness(BusinessResponse response);
         Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid);
         Task<ServiceResult> MarkBusinessAsDeleted(Guid uuid);
+        Task<ServiceResult<List<GetAllBusinessesResponse>>> GetAllBusnesses(Guid userUuid);
     }
     public class BusinessService : IBusinessService
     {
@@ -67,6 +68,35 @@ namespace App.Services
                 _logger.LogError(ex, "{trace} Exception Thrown", LogHelper.TraceLog());
                 throw;
             }
+        }
+
+        public async Task<ServiceResult<List<GetAllBusinessesResponse>>> GetAllBusnesses(Guid userUuid)
+        {
+            List<Business> businesses = await _businessrepository.RetrieveAllBusinesses(userUuid);
+
+            List<GetAllBusinessesResponse> response = new List<GetAllBusinessesResponse>();
+
+            if (businesses == null || businesses.Count == 0)
+            {
+                _logger.LogWarning("{trace} Businesses null or empty", LogHelper.TraceLog());
+                return ServiceResult<List<GetAllBusinessesResponse>>.FailureResult("Businesses null or empty");
+            }
+
+            foreach (Business business in businesses)
+            {
+                response.Add(new GetAllBusinessesResponse
+                {
+                    BusinessUuid = business.BusinessUuid,
+                    BusinessOwnerUuid = business.BusinessOwnerUuid,
+                    BusinessFullname = business.BusinessName.BusinessFullName,
+                    BusinessDisplayName = business.BusinessName.BusinessDisplayName,
+                    BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
+                    CountryCode = business.BusinessStructure.CountryCode,
+                    BusinessIndustry = business.BusinessIndustry,
+                });
+            }
+
+            return ServiceResult<List<GetAllBusinessesResponse>>.SuccessResult(response);
         }
 
         public async Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid)

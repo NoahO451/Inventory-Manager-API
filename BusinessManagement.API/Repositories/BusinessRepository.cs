@@ -1,6 +1,7 @@
 ﻿using App.Models;
 using App.Models.ValueObjects;
 using Dapper;
+using System;
 
 namespace App.Repositories
 {
@@ -9,6 +10,7 @@ namespace App.Repositories
         Task<bool> CreateNewBusiness(Business business);
         Task<bool> MarkBusinessAsDeleted(Guid uuid);
         Task<Business?> GetBusinessByUuid(Guid uuid);
+        Task<List<Business>> RetrieveAllBusinesses(Guid userId);
     }
 
     /// <summary>
@@ -53,7 +55,7 @@ namespace App.Repositories
                 """;
 
                 int affectedRows = await connection.ExecuteAsync(sql, parameters);
-                
+
                 if (affectedRows > 0)
                 {
                     return true;
@@ -85,7 +87,6 @@ namespace App.Repositories
 
                         business_structure_type_id AS BusinessStructureTypeId, 
                         country_code AS CountryCode
-
                     FROM 
                         business
                     WHERE business_uuid = @BusinessUuid;
@@ -101,7 +102,7 @@ namespace App.Repositories
                         business.BusinessStructure = structure;
                         return business;
                     },
-                    new { BusinessUuid =  uuid },
+                    new { BusinessUuid = uuid },
                     splitOn: "BusinessFullname,BusinessStructureTypeId"
                     );
 
@@ -131,6 +132,66 @@ namespace App.Repositories
 
                 _logger.LogWarning("{trace} No datebase rows affected", LogHelper.TraceLog());
                 return false;
+            }
+        }
+
+        public async Task<List<Business>> RetrieveAllBusinesses(Guid userUuid)
+        {
+            IEnumerable<Business>? result = null;
+
+            using (var connection = _context.CreateConnection())
+            {
+
+                string getUserIdSQL = """
+                     SELECT 
+                        user_id
+                     FROM 
+                        user_data u
+                     WHERE 
+                        u.user_uuid = @UserUuid;
+                    """;
+
+                int userId = await connection.QueryFirstOrDefaultAsync<int>(getUserIdSQL, new { UserUuid = userUuid });
+
+                string sql = """
+                     SELECT 
+                        business_uuid AS BusinessUuid, 
+                        business_owner_uuid AS BusinessOwnerUuid,
+                        business_industry AS BusinessIndustry, 
+                        b.is_deleted AS IsDeleted,
+
+                        business_fullname AS BusinessFullname, 
+                        business_display_name AS BusinessDisplayName,
+
+                        business_structure_type_id AS BusinessStructureTypeId, 
+                        country_code AS CountryCode,
+
+                        u.user_id AS UserID,
+                        u.user_uuid AS UserUuid,
+                        u.full_name AS UserName
+                     FROM 
+                        business b
+                     LEFT JOIN 
+                        user_business ub ON b.business_id = ub.business_id
+                     LEFT JOIN 
+                        user_data u ON ub.user_id = u.user_id
+                     WHERE ub.user_id = @UserId;
+                    """;
+                result = await connection.QueryAsync<Business, BusinessName, BusinessStructure, Business>(
+                    sql,
+                    (business, name, structure) =>
+                    {
+                        if (business.BusinessUuid == Guid.Empty)
+                            throw new ArgumentException("Uuid empty", nameof(business));
+                        business.BusinessName = name;
+                        business.BusinessStructure = structure;
+                        return business;
+                    },
+                    new { UserId = userId },
+                    splitOn: "BusinessFullname,BusinessStructureTypeId"
+                    );
+
+                return result.ToList();
             }
         }
     }
