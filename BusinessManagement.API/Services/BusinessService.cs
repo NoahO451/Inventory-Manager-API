@@ -1,5 +1,6 @@
 ﻿using App.Models;
 using App.Models.DTO;
+using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Models.ValueObjects;
 using App.Repositories;
@@ -9,10 +10,11 @@ namespace App.Services
 
     public interface IBusinessService
     {
-        Task<ServiceResult<BusinessResponse>> CreateNewBusiness(BusinessResponse response);
-        Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid);
+        Task<ServiceResult<CreateNewBusinessResponse>> CreateNewBusiness(CreateNewBusinessRequest response);
+        Task<ServiceResult<GetBusinessResponse>> GetBusiness(Guid uuid);
         Task<ServiceResult> MarkBusinessAsDeleted(Guid uuid);
         Task<ServiceResult<List<GetAllBusinessesResponse>>> GetAllBusnesses(Guid userUuid);
+        Task<ServiceResult> UpdateBusinessInformation(UpdateBusinessInformationRequest req);
     }
     public class BusinessService : IBusinessService
     {
@@ -26,7 +28,7 @@ namespace App.Services
             _logger = logger;
         }
 
-        public async Task<ServiceResult<BusinessResponse>> CreateNewBusiness(BusinessResponse response)
+        public async Task<ServiceResult<CreateNewBusinessResponse>> CreateNewBusiness(CreateNewBusinessRequest req)
         {
             try
             {
@@ -34,22 +36,22 @@ namespace App.Services
 
                 Business newBusiness = new Business(
                     NewBusinessUuid,
-                    response.BusinessOwnerUuid,
-                    new BusinessName(response.BusinessFullname, response.BusinessDisplayName),
-                    new BusinessStructure(response.BusinessStructureTypeId, response.CountryCode),
-                    response.BusinessIndustry,
+                    req.BusinessOwnerUuid,
+                    new BusinessName(req.BusinessFullname, req.BusinessDisplayName),
+                    new BusinessStructure(req.BusinessStructureTypeId, req.CountryCode),
+                    req.BusinessIndustry,
                     false
                 );
 
-                bool businessCreated = await _businessrepository.CreateNewBusiness(newBusiness, response.BusinessOwnerUuid);
+                bool businessCreated = await _businessrepository.CreateNewBusiness(newBusiness, req.BusinessOwnerUuid);
 
                 if (!businessCreated)
                 {
                     _logger.LogWarning("{trace} Failed to create new business", LogHelper.TraceLog());
-                    return ServiceResult<BusinessResponse>.FailureResult("There was an error saving to the database.");
+                    return ServiceResult<CreateNewBusinessResponse>.FailureResult("There was an error saving to the database.");
                 }
 
-                var newBusinessResponse = new BusinessResponse()
+                var newBusinessResponse = new CreateNewBusinessResponse()
                 {
                     BusinessUuid = newBusiness.BusinessUuid,
                     BusinessOwnerUuid = newBusiness.BusinessOwnerUuid,
@@ -60,7 +62,7 @@ namespace App.Services
                     BusinessIndustry = newBusiness.BusinessIndustry,
                 };
 
-                return ServiceResult<BusinessResponse>.SuccessResult(newBusinessResponse);
+                return ServiceResult<CreateNewBusinessResponse>.SuccessResult(newBusinessResponse);
 
             }
             catch (Exception ex)
@@ -99,17 +101,17 @@ namespace App.Services
             return ServiceResult<List<GetAllBusinessesResponse>>.SuccessResult(response);
         }
 
-        public async Task<ServiceResult<BusinessResponse>> GetBusiness(Guid uuid)
+        public async Task<ServiceResult<GetBusinessResponse>> GetBusiness(Guid uuid)
         {
             Business? business = await _businessrepository.GetBusinessByUuid(uuid);
             
             if (business == null || business.IsDeleted)
             {
                 _logger.LogWarning("{trace} Business null or deleted", LogHelper.TraceLog());
-                return ServiceResult<BusinessResponse>.FailureResult("Error getting the business.");
+                return ServiceResult<GetBusinessResponse>.FailureResult("Error getting the business.");
             }
 
-            var businessResponse = new BusinessResponse()
+            var businessResponse = new GetBusinessResponse()
             {
                 BusinessUuid = business.BusinessUuid,
                 BusinessOwnerUuid = business.BusinessOwnerUuid,
@@ -121,7 +123,7 @@ namespace App.Services
                 IsDeleted = business.IsDeleted
             };
 
-            return ServiceResult<BusinessResponse>.SuccessResult(businessResponse);
+            return ServiceResult<GetBusinessResponse>.SuccessResult(businessResponse);
         }
 
         public async Task<ServiceResult> MarkBusinessAsDeleted(Guid uuid)
@@ -143,6 +145,11 @@ namespace App.Services
                 _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return ServiceResult.FailureResult("Exception thrown, failed to delete business", ex);
             }
+        }
+
+        public Task<ServiceResult> UpdateBusinessInformation(UpdateBusinessInformationRequest req)
+        {
+            throw new NotImplementedException();
         }
     }
 }

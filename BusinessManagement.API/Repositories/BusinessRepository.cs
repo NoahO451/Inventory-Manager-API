@@ -11,6 +11,7 @@ namespace App.Repositories
         Task<bool> MarkBusinessAsDeleted(Guid uuid);
         Task<Business?> GetBusinessByUuid(Guid uuid);
         Task<List<Business>> RetrieveAllBusinesses(Guid userId);
+        Task<bool> UpdateBusinessInformation (Business business);
     }
 
     /// <summary>
@@ -52,10 +53,10 @@ namespace App.Repositories
                     };
 
                     string sql = """
-                 INSERT INTO business (business_uuid, business_owner_uuid, business_fullname, business_display_name, business_structure_type_id, country_code, business_industry, is_deleted)
-                 VALUES (@BusinessUuid, @OwnerUuid, @BusinessFullname, @BusinessDisplayName, @BusinessStructureTypeId, @CountryCode, @BusinessIndustry, @IsDeleted)
-                 RETURNING business_id;
-                """;
+                        INSERT INTO business (business_uuid, business_owner_uuid, business_fullname, business_display_name, business_structure_type_id, country_code, business_industry, is_deleted)
+                        VALUES (@BusinessUuid, @OwnerUuid, @BusinessFullname, @BusinessDisplayName, @BusinessStructureTypeId, @CountryCode, @BusinessIndustry, @IsDeleted)
+                        RETURNING business_id;
+                        """;
 
                     int businessId = await connection.QueryFirstOrDefaultAsync<int>(sql, parameters);
 
@@ -198,7 +199,7 @@ namespace App.Repositories
                         user_business ub ON b.business_id = ub.business_id
                      LEFT JOIN 
                         user_data u ON ub.user_id = u.user_id
-                     WHERE ub.user_id = @UserId;
+                     WHERE b.is_deleted = false AND ub.user_id = @UserId;
                     """;
                 result = await connection.QueryAsync<Business, BusinessName, BusinessStructure, Business>(
                     sql,
@@ -215,6 +216,50 @@ namespace App.Repositories
                     );
 
                 return result.ToList();
+            }
+        }
+        /// <summary>
+        /// Update business information in the database
+        /// </summary>
+        /// <param name="business"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateBusinessInformation(Business business)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                string sql = """
+                    UPDATE 
+                        business
+                    SET
+                        business_owner_uuid = @OwnerUuid,
+                        business_fullname = @Fullname,
+                        business_display_name = @DisplayName,
+                        business_structure_type_id = @StructureTypeId,
+                        country_code = @CountryCode,
+                        business_industry = @Industry
+                    WHERE
+                        business_uuid = @Uuid;
+                    """;
+                var parameters = new
+                {
+                    Uuid = business.BusinessUuid,
+                    OwnerUuid = business.BusinessOwnerUuid,
+                    Fullname = business.BusinessName.BusinessFullName,
+                    DisplayName = business.BusinessName.BusinessDisplayName,
+                    StructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
+                    CountryCode = business.BusinessStructure.CountryCode,
+                    Industry = business.BusinessIndustry
+                };
+
+                int rowsUpdated = await connection.ExecuteAsync(sql, parameters);
+
+                if (rowsUpdated > 0)
+                {
+                    return true;
+                }
+
+                _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
+                return false;
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace App.Models.DTO.Responses
 {
-    public record BusinessResponse
+    public record CreateNewBusinessResponse
     {
         public Guid BusinessUuid { get; init; }
         public Guid BusinessOwnerUuid { get; init; }

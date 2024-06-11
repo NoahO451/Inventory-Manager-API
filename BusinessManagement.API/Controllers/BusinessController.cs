@@ -28,7 +28,7 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateNewBusiness(BusinessResponse request)
+        public async Task<IActionResult> CreateNewBusiness(CreateNewBusinessRequest request)
         {
             try
             {
