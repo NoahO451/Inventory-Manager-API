@@ -7,7 +7,7 @@ namespace App.Repositories
 {
     public interface IBusinessRepository
     {
-        Task<bool> CreateNewBusiness(Business business);
+        Task<bool> CreateNewBusiness(Business business, Guid ownerUuid);
         Task<bool> MarkBusinessAsDeleted(Guid uuid);
         Task<Business?> GetBusinessByUuid(Guid uuid);
         Task<List<Business>> RetrieveAllBusinesses(Guid userId);
@@ -33,33 +33,56 @@ namespace App.Repositories
         /// <param name="business"></param>
         /// <param name="ownerUuid"></param>
         /// <returns></returns>
-        public async Task<bool> CreateNewBusiness(Business business)
+        public async Task<bool> CreateNewBusiness(Business business, Guid ownerUuid)
         {
-            using (var connection = _context.CreateConnection())
+            try
             {
-                var parameters = new
+                using (var connection = _context.CreateConnection())
                 {
-                    BusinessUuid = business.BusinessUuid,
-                    OwnerUuid = business.BusinessOwnerUuid,
-                    BusinessFullname = business.BusinessName.BusinessFullName,
-                    BusinessDisplayName = business.BusinessName.BusinessDisplayName,
-                    BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
-                    CountryCode = business.BusinessStructure.CountryCode,
-                    BusinessIndustry = business.BusinessIndustry,
-                    IsDeleted = business.IsDeleted,
-                };
+                    var parameters = new
+                    {
+                        BusinessUuid = business.BusinessUuid,
+                        OwnerUuid = business.BusinessOwnerUuid,
+                        BusinessFullname = business.BusinessName.BusinessFullName,
+                        BusinessDisplayName = business.BusinessName.BusinessDisplayName,
+                        BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
+                        CountryCode = business.BusinessStructure.CountryCode,
+                        BusinessIndustry = business.BusinessIndustry,
+                        IsDeleted = business.IsDeleted,
+                    };
 
-                string sql = """
+                    string sql = """
                  INSERT INTO business (business_uuid, business_owner_uuid, business_fullname, business_display_name, business_structure_type_id, country_code, business_industry, is_deleted)
                  VALUES (@BusinessUuid, @OwnerUuid, @BusinessFullname, @BusinessDisplayName, @BusinessStructureTypeId, @CountryCode, @BusinessIndustry, @IsDeleted)
+                 RETURNING business_id;
                 """;
 
-                int affectedRows = await connection.ExecuteAsync(sql, parameters);
+                    int businessId = await connection.QueryFirstOrDefaultAsync<int>(sql, parameters);
 
-                if (affectedRows > 0)
-                {
+                    string getOwnerIdSql = """
+                    SELECT 
+                        user_id
+                    FROM 
+                        user_data u
+                    WHERE
+                        u.user_uuid = @OwnerUuid;
+                    """;
+
+                    int ownerId = await connection.QueryFirstOrDefaultAsync<int>(getOwnerIdSql, new { OwnerUuid = ownerUuid });
+
+                    string insertUserBusinessSql = """
+                    INSERT INTO user_business (user_id, business_id)
+                    VALUES (@OwnerId, @BusinessId);
+                    """;
+
+                    await connection.ExecuteAsync(insertUserBusinessSql, new { OwnerId = ownerId, BusinessId = businessId });
+
                     return true;
                 }
+
+            }
+            catch (Exception)
+            {
 
                 _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
                 return false;

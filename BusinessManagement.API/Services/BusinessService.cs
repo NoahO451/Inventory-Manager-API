@@ -41,7 +41,7 @@ namespace App.Services
                     false
                 );
 
-                bool businessCreated = await _businessrepository.CreateNewBusiness(newBusiness);
+                bool businessCreated = await _businessrepository.CreateNewBusiness(newBusiness, response.BusinessOwnerUuid);
 
                 if (!businessCreated)
                 {
