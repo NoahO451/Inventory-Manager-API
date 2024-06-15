@@ -2,7 +2,7 @@
 {
     public record BusinessStructure
     {
-        private BusinessStructure() { }
+        public BusinessStructure() { }
 
         public BusinessStructure(int businessStructureTypeId, string countryCode)
         {

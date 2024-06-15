@@ -2,7 +2,7 @@
 {
     public record BusinessName
     {
-        private BusinessName() { }
+        public BusinessName() { }
 
         public BusinessName(string businessFullName, string? businessDisplayName)
         {

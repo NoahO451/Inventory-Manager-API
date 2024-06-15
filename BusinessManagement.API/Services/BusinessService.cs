@@ -1,5 +1,6 @@
 ﻿using App.Models;
 using App.Models.DTO;
+using App.Models.DTO.Mappers;
 using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Models.ValueObjects;
@@ -147,9 +148,27 @@ namespace App.Services
             }
         }
 
-        public Task<ServiceResult> UpdateBusinessInformation(UpdateBusinessInformationRequest req)
+        public async Task<ServiceResult> UpdateBusinessInformation(UpdateBusinessInformationRequest req)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Business business = BusinessMapper.FromRequest(req);
+
+                bool businessUpdated = await _businessrepository.UpdateBusinessInformation(business);
+
+                if (businessUpdated)
+                {
+                    return ServiceResult.SuccessResult();
+                }
+
+                _logger.LogWarning("{trace} Failed to update business", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("Failed to update business");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("Exception thrown, failed to update business", ex);
+            }
         }
     }
 }

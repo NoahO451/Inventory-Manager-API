@@ -1,4 +1,5 @@
 ﻿using App.Models;
+using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Repositories;
 using App.Services;
@@ -155,6 +156,37 @@ namespace App.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// Update an existing business with new information.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPatch]
+        [Authorize("update:business")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateBusinessInformation(UpdateBusinessInformationRequest request)
+        {
+            try
+            {
+                var result = await _businessService.UpdateBusinessInformation(request);
+
+                if (result == null || !result.Success)
+                {
+                    _logger.LogWarning("{trace} result was null or failed", LogHelper.TraceLog());
+                    return BadRequest(result?.ErrorMessage);
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
