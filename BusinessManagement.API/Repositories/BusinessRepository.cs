@@ -177,6 +177,12 @@ namespace App.Repositories
 
                 int userId = await connection.QueryFirstOrDefaultAsync<int>(getUserIdSQL, new { UserUuid = userUuid });
 
+                if (userId == 0) 
+                {
+                    _logger.LogWarning("{trace} user doesn't exist", LogHelper.TraceLog());
+                    return null; 
+                }
+
                 string sql = """
                      SELECT 
                         business_uuid AS BusinessUuid, 

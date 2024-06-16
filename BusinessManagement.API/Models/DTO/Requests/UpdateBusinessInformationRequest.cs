@@ -10,6 +10,5 @@
         public int BusinessStructureTypeId { get; set; }
         public string CountryCode { get; set; }
         public string BusinessIndustry { get; set; }
-        public bool IsDeleted { get; set; }
     }
 }

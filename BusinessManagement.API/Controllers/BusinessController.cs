@@ -3,6 +3,7 @@ using App.Models.DTO.Requests;
 using App.Models.DTO.Responses;
 using App.Repositories;
 using App.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +15,16 @@ namespace App.Controllers
     {
         private readonly IBusinessService _businessService;
         private readonly ILogger<BusinessController> _logger;
-        public BusinessController(IBusinessService businessService, ILogger<BusinessController> logger)
+        private readonly IValidator<CreateNewBusinessRequest> _newBusinessValidator;
+        private readonly IValidator<UpdateBusinessInformationRequest> _updatedBusinessInfoValidator;
+        public BusinessController(IBusinessService businessService, 
+            ILogger<BusinessController> logger, 
+            IValidator<CreateNewBusinessRequest> newBusinessValidator,
+            IValidator<UpdateBusinessInformationRequest> updatedBusinessInfoValidator)
         {
             _businessService = businessService;
+            _newBusinessValidator = newBusinessValidator;
+            _updatedBusinessInfoValidator = updatedBusinessInfoValidator;
             _logger = logger;
         }
         /// <summary>
@@ -31,6 +39,16 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateNewBusiness(CreateNewBusinessRequest request)
         {
+            ValidationResult validationResult = _newBusinessValidator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("{trace} validation failed: {err}",
+                     LogHelper.TraceLog(), LogHelper.ErrorList(validationResult));
+
+                return BadRequest(validationResult.Errors);
+            }
+
             try
             {
                 var result = await _businessService.CreateNewBusiness(request);
@@ -172,6 +190,16 @@ namespace App.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateBusinessInformation(UpdateBusinessInformationRequest request)
         {
+            ValidationResult validationResult = _updatedBusinessInfoValidator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("{trace} validation failed: {err}",
+                     LogHelper.TraceLog(), LogHelper.ErrorList(validationResult));
+
+                return BadRequest(validationResult.Errors);
+            }
+
             try
             {
                 var result = await _businessService.UpdateBusinessInformation(request);

@@ -16,7 +16,7 @@ namespace App.Models.DTO.Mappers
                 businessName,
                 businessStruc,
                 req.BusinessIndustry,
-                req.IsDeleted
+                false
                 );
 
         }
