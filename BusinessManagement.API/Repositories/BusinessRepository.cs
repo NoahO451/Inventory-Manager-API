@@ -237,14 +237,13 @@ namespace App.Repositories
                     UPDATE 
                         business
                     SET
-                        business_owner_uuid = @OwnerUuid,
                         business_fullname = @Fullname,
                         business_display_name = @DisplayName,
                         business_structure_type_id = @StructureTypeId,
                         country_code = @CountryCode,
                         business_industry = @Industry
                     WHERE
-                        business_uuid = @Uuid;
+                        business_uuid = @Uuid AND business_owner_uuid = @OwnerUuid;
                     """;
                 var parameters = new
                 {
