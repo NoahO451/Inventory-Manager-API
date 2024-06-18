@@ -165,24 +165,6 @@ namespace App.Repositories
 
             using (var connection = _context.CreateConnection())
             {
-
-                string getUserIdSQL = """
-                     SELECT 
-                        user_id
-                     FROM 
-                        user_data u
-                     WHERE 
-                        u.user_uuid = @UserUuid;
-                    """;
-
-                int userId = await connection.QueryFirstOrDefaultAsync<int>(getUserIdSQL, new { UserUuid = userUuid });
-
-                if (userId == 0) 
-                {
-                    _logger.LogWarning("{trace} user doesn't exist", LogHelper.TraceLog());
-                    return null; 
-                }
-
                 string sql = """
                      SELECT 
                         business_uuid AS BusinessUuid, 
@@ -205,19 +187,19 @@ namespace App.Repositories
                         user_business ub ON b.business_id = ub.business_id
                      LEFT JOIN 
                         user_data u ON ub.user_id = u.user_id
-                     WHERE b.is_deleted = false AND ub.user_id = @UserId;
+                     WHERE b.is_deleted = false AND u.user_uuid = @UserUuid;
                     """;
                 result = await connection.QueryAsync<Business, BusinessName, BusinessStructure, Business>(
                     sql,
                     (business, name, structure) =>
                     {
                         if (business.BusinessUuid == Guid.Empty)
-                            throw new ArgumentException("Uuid empty", nameof(business));
+                            throw new ArgumentException("uuid empty", nameof(business));
                         business.BusinessName = name;
                         business.BusinessStructure = structure;
                         return business;
                     },
-                    new { UserId = userId },
+                    new { UserUuid = userUuid },
                     splitOn: "BusinessFullname,BusinessStructureTypeId"
                     );
 
