@@ -48,8 +48,8 @@ namespace App.Services
 
                 if (!businessCreated)
                 {
-                    _logger.LogWarning("{trace} Failed to create new business", LogHelper.TraceLog());
-                    return ServiceResult<CreateNewBusinessResponse>.FailureResult("There was an error saving to the database.");
+                    _logger.LogWarning("{trace} failed to create new business", LogHelper.TraceLog());
+                    return ServiceResult<CreateNewBusinessResponse>.FailureResult("there was an error saving to the database.");
                 }
 
                 var newBusinessResponse = new CreateNewBusinessResponse()
@@ -68,7 +68,7 @@ namespace App.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception Thrown", LogHelper.TraceLog());
+                _logger.LogError(ex, "{trace} exception Thrown", LogHelper.TraceLog());
                 throw;
             }
         }
@@ -81,8 +81,8 @@ namespace App.Services
 
             if (businesses == null || businesses.Count == 0)
             {
-                _logger.LogWarning("{trace} Businesses null or empty", LogHelper.TraceLog());
-                return ServiceResult<List<GetAllBusinessesResponse>>.FailureResult("Businesses null or empty");
+                _logger.LogWarning("{trace} businesses null or empty", LogHelper.TraceLog());
+                return ServiceResult<List<GetAllBusinessesResponse>>.FailureResult("businesses null or empty");
             }
 
             foreach (Business business in businesses)
@@ -108,8 +108,8 @@ namespace App.Services
             
             if (business == null || business.IsDeleted)
             {
-                _logger.LogWarning("{trace} Business null or deleted", LogHelper.TraceLog());
-                return ServiceResult<GetBusinessResponse>.FailureResult("Error getting the business.");
+                _logger.LogWarning("{trace} business null or deleted", LogHelper.TraceLog());
+                return ServiceResult<GetBusinessResponse>.FailureResult("error getting the business.");
             }
 
             var businessResponse = new GetBusinessResponse()
@@ -138,13 +138,13 @@ namespace App.Services
                     return ServiceResult.SuccessResult();
                 }
 
-                _logger.LogWarning("{trace} Failed to delete business", LogHelper.TraceLog());
-                return ServiceResult.FailureResult("Failed to delete business");
+                _logger.LogWarning("{trace} failed to delete business", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("failed to delete business");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
-                return ServiceResult.FailureResult("Exception thrown, failed to delete business", ex);
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("exception thrown, failed to delete business", ex);
             }
         }
 
@@ -161,13 +161,13 @@ namespace App.Services
                     return ServiceResult.SuccessResult();
                 }
 
-                _logger.LogWarning("{trace} Failed to update business", LogHelper.TraceLog());
-                return ServiceResult.FailureResult("Failed to update business");
+                _logger.LogWarning("{trace} failed to update business", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("failed to update business");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
-                return ServiceResult.FailureResult("Exception thrown, failed to update business", ex);
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
+                return ServiceResult.FailureResult("exception thrown, failed to update business", ex);
             }
         }
     }

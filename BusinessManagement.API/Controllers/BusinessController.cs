@@ -214,7 +214,7 @@ namespace App.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{trace} Exception thrown", LogHelper.TraceLog());
+                _logger.LogError(ex, "{trace} exception thrown", LogHelper.TraceLog());
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

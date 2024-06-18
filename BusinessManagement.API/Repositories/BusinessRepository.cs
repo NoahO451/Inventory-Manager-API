@@ -84,8 +84,7 @@ namespace App.Repositories
             }
             catch (Exception)
             {
-
-                _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
+                _logger.LogWarning("{trace} no database rows affected", LogHelper.TraceLog());
                 return false;
             }
         }
@@ -154,7 +153,7 @@ namespace App.Repositories
                     return true;
                 }
 
-                _logger.LogWarning("{trace} No datebase rows affected", LogHelper.TraceLog());
+                _logger.LogWarning("{trace} no datebase rows affected", LogHelper.TraceLog());
                 return false;
             }
         }
@@ -245,7 +244,7 @@ namespace App.Repositories
                     return true;
                 }
 
-                _logger.LogWarning("{trace} No database rows affected", LogHelper.TraceLog());
+                _logger.LogWarning("{trace} no database rows affected", LogHelper.TraceLog());
                 return false;
             }
         }
