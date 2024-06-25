@@ -75,6 +75,12 @@ namespace App.Repositories
 
                         int ownerId = await connection.QueryFirstOrDefaultAsync<int>(getOwnerIdSql, new { OwnerUuid = ownerUuid });
 
+                        if (ownerId == 0)
+                        {
+                            _logger.LogWarning("{trace} user does not exist", LogHelper.TraceLog());
+                            return false;
+                        }
+
                         string insertUserBusinessSql = """
                             INSERT INTO user_business (user_id, business_id)
                             VALUES (@OwnerId, @BusinessId);
@@ -88,9 +94,9 @@ namespace App.Repositories
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _logger.LogWarning("{trace} no database rows affected", LogHelper.TraceLog());
+                _logger.LogWarning(ex, "{trace} exception thrown", LogHelper.TraceLog());
                 return false;
             }
         }
