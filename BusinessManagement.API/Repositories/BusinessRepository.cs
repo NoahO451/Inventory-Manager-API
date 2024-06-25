@@ -121,8 +121,8 @@ namespace App.Repositories
                     {
                         if (business.BusinessUuid == Guid.Empty)
                             throw new ArgumentException("Uuid empty", nameof(business));
-                        business.BusinessName = name;
-                        business.BusinessStructure = structure;
+                        business.SetBusinessName(name);
+                        business.SetBusinessStructure(structure);
                         return business;
                     },
                     new { BusinessUuid = uuid },
@@ -194,8 +194,8 @@ namespace App.Repositories
                     {
                         if (business.BusinessUuid == Guid.Empty)
                             throw new ArgumentException("uuid empty", nameof(business));
-                        business.BusinessName = name;
-                        business.BusinessStructure = structure;
+                        business.SetBusinessName(name);
+                        business.SetBusinessStructure(structure);
                         return business;
                     },
                     new { UserUuid = userUuid },

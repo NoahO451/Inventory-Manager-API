@@ -1,4 +1,4 @@
-﻿namespace App.Models.DTO.Responses
+﻿namespace App.Models.DTO.Requests
 {
     public record CreateNewBusinessRequest
     {

@@ -1,14 +1,14 @@
 ﻿namespace App.Models.DTO.Requests
 {
-    public class UpdateBusinessInformationRequest
+    public record UpdateBusinessInformationRequest
     {
         // Business Uuid cannot be changed but we still need it
-        public Guid BusinessUuid { get; set; }
-        public Guid BusinessOwnerUuid { get; set; }
-        public string BusinessFullname { get; set; }
-        public string? BusinessDisplayName { get; set; }
-        public int BusinessStructureTypeId { get; set; }
-        public string CountryCode { get; set; }
-        public string BusinessIndustry { get; set; }
+        public Guid BusinessUuid { get; init; }
+        public Guid BusinessOwnerUuid { get; init; }
+        public string BusinessFullname { get; init; }
+        public string? BusinessDisplayName { get; init; }
+        public int BusinessStructureTypeId { get; init; }
+        public string CountryCode { get; init; }
+        public string BusinessIndustry { get; init; }
     }
 }

@@ -32,7 +32,7 @@ namespace App.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("createBusiness")]
+        [HttpPost]
         [Authorize("create:new-business")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -111,7 +111,7 @@ namespace App.Controllers
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        [HttpPatch("{uuid}")]
+        [HttpDelete("{uuid}")]
         [Authorize("delete:business")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

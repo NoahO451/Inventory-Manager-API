@@ -24,10 +24,20 @@ namespace App.Models
             IsDeleted = isDeleted;
         }
 
+        public void SetBusinessName(BusinessName businessName)
+        {
+            BusinessName = businessName;
+        }
+
+        public void SetBusinessStructure(BusinessStructure businessStructure)
+        {
+            BusinessStructure = businessStructure;
+        }
+
         public Guid BusinessUuid { get; private set; }
         public Guid BusinessOwnerUuid { get; private set; }
-        public BusinessName BusinessName { get; set; }
-        public BusinessStructure BusinessStructure { get; set; }
+        public BusinessName BusinessName { get; private set; }
+        public BusinessStructure BusinessStructure { get; private set; }
         public string BusinessIndustry { get; private set; }
         public bool IsDeleted { get; private set; }
     }
