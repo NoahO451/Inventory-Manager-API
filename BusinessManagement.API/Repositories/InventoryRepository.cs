@@ -152,7 +152,7 @@ namespace App.Repositories
 
                         b.business_id AS BusinessID,
                         b.business_uuid AS BusinessUuid,
-                        b.business_name AS BusinessName 
+                        b.business_fullname AS BusinessName 
                     FROM 
                         inventory_item ii
                     LEFT JOIN 

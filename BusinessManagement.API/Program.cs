@@ -186,6 +186,8 @@ try
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IAuth0Service, Auth0Service>();
     builder.Services.AddScoped<IUserRolePermissionRepository, UserRolePermissionRepository>();
+    builder.Services.AddScoped<IBusinessService, BusinessService>();
+    builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
     
 
     builder.Services.AddValidatorsFromAssemblyContaining<AddInventoryItemRequestValidator>();

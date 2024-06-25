@@ -19,6 +19,11 @@ namespace App.Controllers
             _logger = logger; 
         }
 
+        /// <summary>
+        /// Create a new user sign up.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("signup")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -44,6 +49,11 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Get user information using the user's ID. 
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         [HttpGet("{uuid}")]
         [Authorize("get:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -76,6 +86,11 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Update an existing user's information. 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPatch]
         [Authorize("update:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -102,6 +117,11 @@ namespace App.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete a user using their ID. 
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         [HttpPatch("{uuid}")]
         [Authorize("delete:user")]
         [ProducesResponseType(StatusCodes.Status200OK)]

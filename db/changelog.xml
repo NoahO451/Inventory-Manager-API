@@ -149,6 +149,14 @@
             VALUES ('delete:inventory-item');
             INSERT INTO public.permission (permission_name)
             VALUES ('update:inventory-item');
+			INSERT INTO public.permission (permission_name)
+			VALUES ('create:business');
+			INSERT INTO public.permission (permission_name)
+			VALUES ('get:business');
+			INSERT INTO public.permission (permission_name)
+			VALUES ('delete:business');
+			INSERT INTO public.permission (permission_name)
+			VALUES ('update:business');
 
             INSERT INTO public.role_permission (role_id, permission_id)
             VALUES (1, 1);
