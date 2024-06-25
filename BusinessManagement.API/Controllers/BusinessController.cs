@@ -33,7 +33,7 @@ namespace App.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize("create:new-business")]
+        [Authorize("create:business")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -147,7 +147,7 @@ namespace App.Controllers
         /// <param name="userUuid"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize("get:businesses")]
+        [Authorize("get:business")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
