@@ -11,7 +11,7 @@ namespace App.Repositories
         Task<bool> MarkBusinessAsDeleted(Guid uuid);
         Task<Business?> GetBusinessByUuid(Guid uuid);
         Task<List<Business>> RetrieveAllBusinesses(Guid userId);
-        Task<bool> UpdateBusinessInformation (Business business);
+        Task<bool> UpdateBusinessInformation(Business business);
     }
 
     /// <summary>
@@ -40,47 +40,53 @@ namespace App.Repositories
             {
                 using (var connection = _context.CreateConnection())
                 {
-                    var parameters = new
+                    connection.Open();
+
+                    using (var transaction = connection.BeginTransaction())
                     {
-                        BusinessUuid = business.BusinessUuid,
-                        OwnerUuid = business.BusinessOwnerUuid,
-                        BusinessFullname = business.BusinessName.BusinessFullName,
-                        BusinessDisplayName = business.BusinessName.BusinessDisplayName,
-                        BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
-                        CountryCode = business.BusinessStructure.CountryCode,
-                        BusinessIndustry = business.BusinessIndustry,
-                        IsDeleted = business.IsDeleted,
-                    };
+                        var parameters = new
+                        {
+                            BusinessUuid = business.BusinessUuid,
+                            OwnerUuid = business.BusinessOwnerUuid,
+                            BusinessFullname = business.BusinessName.BusinessFullName,
+                            BusinessDisplayName = business.BusinessName.BusinessDisplayName,
+                            BusinessStructureTypeId = business.BusinessStructure.BusinessStructureTypeId,
+                            CountryCode = business.BusinessStructure.CountryCode,
+                            BusinessIndustry = business.BusinessIndustry,
+                            IsDeleted = business.IsDeleted,
+                        };
 
-                    string sql = """
-                        INSERT INTO business (business_uuid, business_owner_uuid, business_fullname, business_display_name, business_structure_type_id, country_code, business_industry, is_deleted)
-                        VALUES (@BusinessUuid, @OwnerUuid, @BusinessFullname, @BusinessDisplayName, @BusinessStructureTypeId, @CountryCode, @BusinessIndustry, @IsDeleted)
-                        RETURNING business_id;
-                        """;
+                        string sql = """
+                            INSERT INTO business (business_uuid, business_owner_uuid, business_fullname, business_display_name, business_structure_type_id, country_code, business_industry, is_deleted)
+                            VALUES (@BusinessUuid, @OwnerUuid, @BusinessFullname, @BusinessDisplayName, @BusinessStructureTypeId, @CountryCode, @BusinessIndustry, @IsDeleted)
+                            RETURNING business_id;
+                            """;
 
-                    int businessId = await connection.QueryFirstOrDefaultAsync<int>(sql, parameters);
+                        int businessId = await connection.QueryFirstOrDefaultAsync<int>(sql, parameters);
 
-                    string getOwnerIdSql = """
-                    SELECT 
-                        user_id
-                    FROM 
-                        user_data u
-                    WHERE
-                        u.user_uuid = @OwnerUuid;
-                    """;
+                        string getOwnerIdSql = """
+                            SELECT 
+                                user_id
+                            FROM 
+                                user_data u
+                            WHERE
+                                u.user_uuid = @OwnerUuid;
+                            """;
 
-                    int ownerId = await connection.QueryFirstOrDefaultAsync<int>(getOwnerIdSql, new { OwnerUuid = ownerUuid });
+                        int ownerId = await connection.QueryFirstOrDefaultAsync<int>(getOwnerIdSql, new { OwnerUuid = ownerUuid });
 
-                    string insertUserBusinessSql = """
-                    INSERT INTO user_business (user_id, business_id)
-                    VALUES (@OwnerId, @BusinessId);
-                    """;
+                        string insertUserBusinessSql = """
+                            INSERT INTO user_business (user_id, business_id)
+                            VALUES (@OwnerId, @BusinessId);
+                            """;
 
-                    await connection.ExecuteAsync(insertUserBusinessSql, new { OwnerId = ownerId, BusinessId = businessId });
+                        await connection.ExecuteAsync(insertUserBusinessSql, new { OwnerId = ownerId, BusinessId = businessId });
 
-                    return true;
+                        transaction.Commit();
+
+                        return true;
+                    }
                 }
-
             }
             catch (Exception)
             {
@@ -135,25 +141,44 @@ namespace App.Repositories
 
         public async Task<bool> MarkBusinessAsDeleted(Guid uuid)
         {
-            using (var connection = _context.CreateConnection())
+            try
             {
-                string sql = """
-                    UPDATE 
-                        business
-                    SET 
-                        is_deleted = true
-                    WHERE 
-                        business_uuid = @BusinessUuid;
-                    """;
-
-                int rowsUpdated = await connection.ExecuteAsync(sql, new { BusinessUuid = uuid });
-
-                if (rowsUpdated > 0)
+                using (var connection = _context.CreateConnection())
                 {
-                    return true;
-                }
+                    connection.Open();
 
-                _logger.LogWarning("{trace} no datebase rows affected", LogHelper.TraceLog());
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        string sql = """
+                            UPDATE 
+                                business
+                            SET 
+                                is_deleted = true
+                            WHERE 
+                                business_uuid = @BusinessUuid
+                            RETURNING 
+                                business_id;
+                            """;
+
+                        int businessId = await connection.QueryFirstOrDefaultAsync<int>(sql, new { BusinessUuid = uuid });
+
+                        string deleteUserBusinessSql = """
+                            DELETE FROM 
+                                user_business
+                            WHERE 
+                                business_id = @BusinessId
+                            """;
+                        await connection.ExecuteAsync(deleteUserBusinessSql, new { BusinessId = businessId });
+
+                        transaction.Commit();
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "{trace} exception thrown", LogHelper.TraceLog());
                 return false;
             }
         }
