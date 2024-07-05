@@ -176,6 +176,12 @@
             VALUES (1, 8);
             INSERT INTO public.role_permission (role_id, permission_id)
             VALUES (1, 9);
+			INSERT INTO public.role_permission (role_id, permission_id)
+            VALUES (1, 10);
+			INSERT INTO public.role_permission (role_id, permission_id)
+            VALUES (1, 11);
+			INSERT INTO public.role_permission (role_id, permission_id)
+            VALUES (1, 12);
 
             INSERT INTO public.user_data (user_uuid, auth0_id, full_name, first_name, last_name, nickname, email, created_at, last_login, is_premium_member, is_deleted)
             VALUES ('e7bd758c-e8bb-45f0-ab4d-e7a331b60729','auth0|65fe478e4e87f7a8c0a6684a', 'Carl Ryckeley', 'Carl', 'Ryckeley','Carl The Great', 'bm-app@carlthegreat.com', NOW(), NOW(), False, False);
