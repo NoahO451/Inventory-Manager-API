@@ -281,4 +281,186 @@
             );
         </sql>
     </changeSet>
+	<changeSet id="4" author="Noah" context="#23">
+		<comment>Create tables for sales orders, line items, customers, and addresses</comment>
+		<sql>
+			CREATE TABLE public.sales_order (
+				sales_order_id SERIAL PRIMARY KEY,
+				sales_order_uuid UUID NOT NULL,
+				reference_number TEXT NOT NULL,
+				sales_order_customer_uuid UUID NOT NULL,
+				business_uuid UUID NOT NULL,
+				date TIMESTAMP NOT NULL,
+				delivery_method TEXT,
+				is_tax_inclusive BOOLEAN NOT NULL,
+				notes TEXT,
+				terms TEXT,
+				shipping_charge INTEGER,
+				adjustment INTEGER,
+				adjustment_description TEXT,
+				shipping_address_uuid UUID NOT NULL,
+				billing_address_uuid UUID NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+
+			CREATE TABLE public.sales_order_line_item (
+				line_item_id BIGSERIAL PRIMARY KEY,
+				line_item_uuid UUID NOT NULL,
+				inventory_item_uuid UUID NOT NULL,
+				sales_order_uuid UUID NOT NULL,
+				order_number INTEGER NOT NULL,
+				name TEXT NOT NULL,
+				cost INTEGER NOT NULL,
+				description TEXT,
+				quantity INTEGER NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+
+			CREATE TABLE public.sales_order_customer (
+				customer_id SERIAL PRIMARY KEY,
+				customer_uuid UUID NOT NULL,
+				first_name TEXT NOT NULL,
+				last_name TEXT NOT NULL,
+				company TEXT,
+				phone_number TEXT,
+				email TEXT,
+				billing_address_uuid UUID NOT NULL,
+				shipping_address_uuid UUID NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+
+			CREATE TABLE public.sales_order_customer_billing_address (
+				billing_address_id SERIAL PRIMARY KEY,
+				billing_address_uuid UUID NOT NULL,
+				street_one TEXT NOT NULL,
+				street_two TEXT,
+				city TEXT NOT NULL,
+				state TEXT NOT NULL,
+				postal_code TEXT NOT NULL,
+				country TEXT NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+
+			CREATE TABLE public.sales_order_customer_shipping_address (
+				shipping_address_id SERIAL PRIMARY KEY,
+				shipping_address_uuid UUID NOT NULL,
+				street_one TEXT NOT NULL,
+				street_two TEXT,
+				city TEXT NOT NULL,
+				state TEXT NOT NULL,
+				postal_code TEXT NOT NULL,
+				country TEXT NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);	
+		</sql>
+		
+		<comment>Create tables for sales orders, line items, customers, and addresses</comment>
+		<sql>
+			INSERT INTO public.sales_order (sales_order_uuid, reference_number, sales_order_customer_uuid, business_uuid, date, delivery_method, is_tax_inclusive, notes, terms, shipping_charge, adjustment, adjustment_description, shipping_address_uuid, billing_address_uuid)
+			VALUES ('74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', '240511B', '63d4f1b4-12c5-49d4-9e16-74b48e5a6db7', '835b9d9e-7c42-4eaf-93f7-2b29e94b6f8b', NOW(), 'UPS', FALSE, 'This note is a test.', 'These are my terms', 500, 0, 'Test description', '57cd3d5b-3f45-4d7b-bdb1-6d8f5a5d3cbb', '91b3a2c2-0d62-49c4-bdfd-7a8f7f0e4c7d');
+
+			INSERT INTO public.sales_order (sales_order_uuid, reference_number, sales_order_customer_uuid, business_uuid, date, delivery_method, is_tax_inclusive, notes, terms, shipping_charge, adjustment, adjustment_description, shipping_address_uuid, billing_address_uuid)
+			VALUES ('b94d9b5c-4c3f-40e2-87c7-a34d5d7e4f9a', '450921D', '85f4e2a6-3a7e-40d6-8d9e-6a87e5b4f9b8', '73d5c2d4-5a2f-4eaf-b9f9-2e38e94a7f9c', NOW(), 'FedEx', TRUE, 'This is another test note.', 'These are different terms', 600, 1, 'Another test description', '47cd4e6a-3e56-4e8b-adc1-7d9e5b4f3a9d', '81b4a3c3-0d73-49e5-cafe-6a8f8e1e3c8e');
+
+			INSERT INTO public.sales_order (sales_order_uuid, reference_number, sales_order_customer_uuid, business_uuid, date, delivery_method, is_tax_inclusive, notes, terms, shipping_charge, adjustment, adjustment_description, shipping_address_uuid, billing_address_uuid)
+			VALUES ('f84e1a2b-4d4f-40b8-87d7-b45f7d8e5a9a', '730731E', '6e3e9f5e-cae2-40de-8f15-c0f62d4f3ec1', '8d97d9e4-b614-4a95-8f7a-bb89624eab10', NOW(), 'DHL', FALSE, 'This is a different test note.', 'These are yet more terms', 700, 2, 'Yet another test description', '5db72a60-4379-45d6-bac7-89a1a96a0f12', '7bca2438-88b5-43f6-82b2-376d2d17dc2b');
+
+			INSERT INTO public.sales_order (sales_order_uuid, reference_number, sales_order_customer_uuid, business_uuid, date, delivery_method, is_tax_inclusive, notes, terms, shipping_charge, adjustment, adjustment_description, shipping_address_uuid, billing_address_uuid)
+			VALUES ('21cd8e44-6e57-4329-8d65-fb7e29e408b4', '920841F', '44b21d8d-6f3a-4ae9-8243-1fc4e8d1b657', '3bdf5d58-3b92-4ea4-beb8-d55a5e8fbf99', NOW(), 'USPS', TRUE, 'This is yet another test note.', 'These are more different terms', 800, 3, 'Different test description', '2c2b4f3c-8e6d-47d3-9a62-2f5cbaf2e6f7', '13d1a8f4-c7b5-4c92-8722-8de12d36d3ed');
+
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('550e8400-e29b-41d4-a716-446655440000', '6fa459ea-ee8a-3ca4-894e-db77e160355e', '74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', 1, 'Sample Item 1', 200, 'Description for item 1', 5);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('19f8c600-47c2-4f9a-8e6d-b2f7e02364b0', 'a4a3c1b5-85a7-44e7-bf9f-82ebd7e98ff1', '74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', 1, 'Sample Item 2', 150, 'Description for item 2', 10);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('e9186b7e-8578-44c1-8b29-9a3b42e7f3e6', 'b706dd27-477e-4d5d-8462-3ed36cbe6d7d', 'b94d9b5c-4c3f-40e2-87c7-a34d5d7e4f9a', 1, 'Sample Item 3', 300, 'Description for item 3', 20);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('9b2e5df3-9155-4ba5-b5f5-08e3a7c08025', 'c2e2a6d1-237b-47d1-9b64-1d7a0e6274b0', 'b94d9b5c-4c3f-40e2-87c7-a34d5d7e4f9a', 1, 'Sample Item 4', 450, 'Description for item 4', 15);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('1c47128d-093f-48a1-b217-9b2b9f3a60b8', '17b1b4d6-10e4-4560-8a5d-e0dc9390e10d', 'f84e1a2b-4d4f-40b8-87d7-b45f7d8e5a9a', 1, 'Sample Item 5', 600, 'Description for item 5', 5);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('478b1c1c-4a62-4909-a4ea-6eaf83c3e4bb', '5dbf1b6e-d6b1-4d8a-9fa5-52bc3e1e5fb6', 'f84e1a2b-4d4f-40b8-87d7-b45f7d8e5a9a', 1, 'Sample Item 6', 750, 'Description for item 6', 12);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('01f3b9e5-d9f0-4f56-b7e2-3dc610adf6a3', '54e2f8a3-83d7-4b4e-9adf-98c9186b0c7a', '21cd8e44-6e57-4329-8d65-fb7e29e408b4', 1, 'Sample Item 7', 900, 'Description for item 7', 7);
+
+			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
+			VALUES ('e5f3b1c4-45af-4ea2-a3be-fbc497c7f14e', '9d6e3a1b-12f5-4b83-b5e7-fb5a0d5f517b', '21cd8e44-6e57-4329-8d65-fb7e29e408b4', 1, 'Sample Item 8', 1050, 'Description for item 8', 22);
+
+
+			INSERT INTO public.sales_order_customer (customer_uuid, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
+			VALUES ('8c2a71e5-bbf7-453b-919f-d3c6a16a2ef9','John', 'Doe', 'Doe Enterprises', '+1 (123) 555-1234', 'john.doe@doeenterprises.com', 'f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9');
+
+			INSERT INTO public.sales_order_customer (customer_uuid, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
+			VALUES ('75f8e1b1-3d6b-4482-a5b8-4d6bce847ff1','Jane', 'Smith', 'Smith Solutions', '+1 (456) 555-5678', 'jane.smith@smithsolutions.com', '6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', 'edb0a1d9-76f2-47fb-95c5-9b24b25994f3');
+
+			INSERT INTO public.sales_order_customer (customer_uuid, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
+			VALUES ('3b1c9a5f-87f7-43c5-917c-6c4d2d3b1e6e','Alice', 'Johnson', NULL, '+1 (789) 555-8765', 'alice.johnson@example.com', '4f3e72b3-6e07-4e03-9847-57c7cf9f0e57', 'a75a5627-5e3f-4e7f-a384-064e5c70f504');
+
+			INSERT INTO public.sales_order_customer (customer_uuid, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
+			VALUES ('8d7a4b3c-5e7f-4892-a4e1-c5d2e3b7a8f9','Bob', 'Brown', 'Brown and Co.', '+1 (321) 555-4321', 'bob.brown@brownco.com', '983856b8-ebef-4c8f-a20a-13686f314f11', 'c4d0f503-019d-4984-8f3f-44aa02a6c9ec');
+
+
+			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '123 Main St', NULL, 'Springfield', 'IL', '62701', 'US');
+
+			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '456 Elm St', NULL, 'Anytown', 'TX', '75001', 'US');
+
+			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('4f3e72b3-6e07-4e03-9847-57c7cf9f0e57', '789 Oak Ave', 'P.O. Box 101', 'Lakeside', 'CA', '92040', 'US');
+
+			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '321 Cedar Rd', NULL, 'Portland', 'OR', '97201', 'US');
+
+
+			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '123 Main St', NULL, 'Springfield', 'IL', '62701', 'US');
+
+			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '456 Elm St', NULL, 'Anytown', 'TX', '75001', 'US');
+
+			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '789 Oak Ave', 'P.O. Box 101', 'Lakeside', 'CA', '92040', 'US');
+
+			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '555 Pine Blvd', 'P.O. Box 202', 'Seattle', 'IL', '98101', 'US');
+		</sql>
+		
+		<comment>Create history tables and audit triggers</comment>
+        <sql>
+            SELECT audit.audit_table('sales_order');
+            SELECT audit.audit_table('sales_order_line_item');
+        </sql>
+		
+		<sqlFile dbms="postgresql"
+            encoding="UTF-8"
+            path="versioning_function.sql"
+            relativeToChangelogFile="true"
+            splitStatements="true"
+            stripComments="true"
+            />
+        <sql>
+			CREATE TABLE audit.sales_order_history (LIKE public.sales_order);
+			CREATE TABLE audit.sales_order_line_item_history (LIKE public.sales_order_line_item);
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.sales_order_history', true
+            );
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order_line_item
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.sales_order_line_item_history', true
+            );
+		</sql>
+	</changeSet>
 </databaseChangeLog>
