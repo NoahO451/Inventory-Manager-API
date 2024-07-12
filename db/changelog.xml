@@ -290,7 +290,7 @@
 				reference_number TEXT NOT NULL,
 				sales_order_customer_uuid UUID NOT NULL,
 				business_uuid UUID NOT NULL,
-				date TIMESTAMP NOT NULL,
+				created_at TIMESTAMP NOT NULL,
 				delivery_method TEXT,
 				is_tax_inclusive BOOLEAN NOT NULL,
 				notes TEXT,
@@ -373,25 +373,25 @@
 			VALUES ('550e8400-e29b-41d4-a716-446655440000', '6fa459ea-ee8a-3ca4-894e-db77e160355e', '74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', 1, 'Sample Item 1', 200, 'Description for item 1', 5);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
-			VALUES ('19f8c600-47c2-4f9a-8e6d-b2f7e02364b0', 'a4a3c1b5-85a7-44e7-bf9f-82ebd7e98ff1', '74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', 1, 'Sample Item 2', 150, 'Description for item 2', 10);
+			VALUES ('19f8c600-47c2-4f9a-8e6d-b2f7e02364b0', 'a4a3c1b5-85a7-44e7-bf9f-82ebd7e98ff1', '74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', 2, 'Sample Item 2', 150, 'Description for item 2', 10);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
 			VALUES ('e9186b7e-8578-44c1-8b29-9a3b42e7f3e6', 'b706dd27-477e-4d5d-8462-3ed36cbe6d7d', 'b94d9b5c-4c3f-40e2-87c7-a34d5d7e4f9a', 1, 'Sample Item 3', 300, 'Description for item 3', 20);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
-			VALUES ('9b2e5df3-9155-4ba5-b5f5-08e3a7c08025', 'c2e2a6d1-237b-47d1-9b64-1d7a0e6274b0', 'b94d9b5c-4c3f-40e2-87c7-a34d5d7e4f9a', 1, 'Sample Item 4', 450, 'Description for item 4', 15);
+			VALUES ('9b2e5df3-9155-4ba5-b5f5-08e3a7c08025', 'c2e2a6d1-237b-47d1-9b64-1d7a0e6274b0', 'b94d9b5c-4c3f-40e2-87c7-a34d5d7e4f9a', 2, 'Sample Item 4', 450, 'Description for item 4', 15);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
 			VALUES ('1c47128d-093f-48a1-b217-9b2b9f3a60b8', '17b1b4d6-10e4-4560-8a5d-e0dc9390e10d', 'f84e1a2b-4d4f-40b8-87d7-b45f7d8e5a9a', 1, 'Sample Item 5', 600, 'Description for item 5', 5);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
-			VALUES ('478b1c1c-4a62-4909-a4ea-6eaf83c3e4bb', '5dbf1b6e-d6b1-4d8a-9fa5-52bc3e1e5fb6', 'f84e1a2b-4d4f-40b8-87d7-b45f7d8e5a9a', 1, 'Sample Item 6', 750, 'Description for item 6', 12);
+			VALUES ('478b1c1c-4a62-4909-a4ea-6eaf83c3e4bb', '5dbf1b6e-d6b1-4d8a-9fa5-52bc3e1e5fb6', 'f84e1a2b-4d4f-40b8-87d7-b45f7d8e5a9a', 2, 'Sample Item 6', 750, 'Description for item 6', 12);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
 			VALUES ('01f3b9e5-d9f0-4f56-b7e2-3dc610adf6a3', '54e2f8a3-83d7-4b4e-9adf-98c9186b0c7a', '21cd8e44-6e57-4329-8d65-fb7e29e408b4', 1, 'Sample Item 7', 900, 'Description for item 7', 7);
 
 			INSERT INTO public.sales_order_line_item (line_item_uuid, inventory_item_uuid, sales_order_uuid, order_number, name, cost, description, quantity)
-			VALUES ('e5f3b1c4-45af-4ea2-a3be-fbc497c7f14e', '9d6e3a1b-12f5-4b83-b5e7-fb5a0d5f517b', '21cd8e44-6e57-4329-8d65-fb7e29e408b4', 1, 'Sample Item 8', 1050, 'Description for item 8', 22);
+			VALUES ('e5f3b1c4-45af-4ea2-a3be-fbc497c7f14e', '9d6e3a1b-12f5-4b83-b5e7-fb5a0d5f517b', '21cd8e44-6e57-4329-8d65-fb7e29e408b4', 2, 'Sample Item 8', 1050, 'Description for item 8', 22);
 
 
 			INSERT INTO public.sales_order_customer (customer_uuid, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
