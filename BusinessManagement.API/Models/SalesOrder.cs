@@ -6,8 +6,8 @@ namespace App.Models
     {
         public SalesOrder() { }
 
-        public SalesOrder(Guid salesOrderUuid, string referenceNumber, Guid sOCustomerUuid, Guid businessUuid, 
-            DateTime createdAt, bool isTaxInclusive, SalesOrderDetail salesOrderDetail, Guid shippingAddressUuid, Guid billingAddressUuid, 
+        public SalesOrder(Guid salesOrderUuid, string referenceNumber, Guid? sOCustomerUuid, Guid businessUuid, 
+            DateTime createdAt, bool isTaxInclusive, SalesOrderDetail salesOrderDetail, Address sOShippingAddress, Address sOBillingAddress, 
             List<LineItem> lineItems)
         {
             if (salesOrderUuid == Guid.Empty)
@@ -15,15 +15,6 @@ namespace App.Models
 
             if (sOCustomerUuid == Guid.Empty)
                 throw new ArgumentNullException("Customer uuid empty", nameof(sOCustomerUuid));
-
-            if (businessUuid == Guid.Empty)
-                throw new ArgumentNullException("Business uuid empty", nameof(businessUuid));
-
-            if (shippingAddressUuid == Guid.Empty)
-                throw new ArgumentNullException("Shipping address uuid empty", nameof(shippingAddressUuid));
-
-            if (billingAddressUuid == Guid.Empty)
-                throw new ArgumentNullException("Billing address uuid empty", nameof(billingAddressUuid));
 
             if (lineItems == null)
                 throw new ArgumentNullException("Line items are null", nameof(lineItems));
@@ -35,12 +26,11 @@ namespace App.Models
             SalesOrderUuid = salesOrderUuid;
             ReferenceNumber = referenceNumber;
             SOCustomerUuid = sOCustomerUuid;
-            BusinessUuid = businessUuid;
             CreatedAt = createdAt;
             IsTaxInclusive = isTaxInclusive;
             SalesOrderDetail = salesOrderDetail;
-            ShippingAddressUuid = shippingAddressUuid;
-            BillingAddressUuid = billingAddressUuid;
+            SOShippingAddress = sOShippingAddress;
+            SOBillingAddress = sOBillingAddress;
             LineItems = lineItems;
         }
 
@@ -54,15 +44,24 @@ namespace App.Models
             LineItems = lineItems;
         }
 
+        public void SetShippingAddress(Address sOShippingAddress)
+        {
+            SOShippingAddress = sOShippingAddress;
+        }
+
+        public void SetBillingAddress(Address sOBillingAddress)
+        {
+            SOBillingAddress = sOBillingAddress;
+        }
+
         public Guid SalesOrderUuid { get; private set; }
         public string ReferenceNumber { get; private set; }
-        public Guid SOCustomerUuid { get; private set; }
-        public Guid BusinessUuid { get; private set; } //might not need this
+        public Guid? SOCustomerUuid { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public bool IsTaxInclusive { get; private set; }
         public SalesOrderDetail SalesOrderDetail { get; private set; }
-        public Guid ShippingAddressUuid { get; private set; }
-        public Guid BillingAddressUuid { get; private set; }
+        public Address SOShippingAddress { get; private set; }
+        public Address SOBillingAddress { get; private set; }
         public List<LineItem> LineItems { get; private set; }
     }
 }
