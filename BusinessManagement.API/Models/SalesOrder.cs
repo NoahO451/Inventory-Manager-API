@@ -7,14 +7,11 @@ namespace App.Models
         public SalesOrder() { }
 
         public SalesOrder(Guid salesOrderUuid, string referenceNumber, Guid? sOCustomerUuid, Guid businessUuid, 
-            DateTime createdAt, bool isTaxInclusive, SalesOrderDetail salesOrderDetail, Address sOShippingAddress, Address sOBillingAddress, 
-            List<LineItem> lineItems)
+            DateTime createdAt, bool isTaxInclusive, SalesOrderDetail salesOrderDetail, Address sOShippingAddress, 
+            Address sOBillingAddress, List<LineItem> lineItems)
         {
             if (salesOrderUuid == Guid.Empty)
                 throw new ArgumentNullException("Sales order uuid empty", nameof(salesOrderUuid));
-
-            if (sOCustomerUuid == Guid.Empty)
-                throw new ArgumentNullException("Customer uuid empty", nameof(sOCustomerUuid));
 
             if (lineItems == null)
                 throw new ArgumentNullException("Line items are null", nameof(lineItems));

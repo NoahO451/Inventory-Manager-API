@@ -316,21 +316,7 @@
 				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
 			);
 
-			CREATE TABLE public.sales_order_customer (
-				customer_id SERIAL PRIMARY KEY,
-				customer_uuid UUID NOT NULL,
-				full_name TEXT NOT NULL,
-				first_name TEXT NOT NULL,
-				last_name TEXT NOT NULL,
-				company TEXT,
-				phone_number TEXT,
-				email TEXT,
-				billing_address_uuid UUID NOT NULL,
-				shipping_address_uuid UUID NOT NULL,
-				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
-			);
-
-			CREATE TABLE public.sales_order_customer_billing_address (
+			CREATE TABLE public.sales_order_billing_address (
 				billing_address_id SERIAL PRIMARY KEY,
 				billing_address_uuid UUID NOT NULL,
 				street_one TEXT NOT NULL,
@@ -342,7 +328,46 @@
 				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
 			);
 
-			CREATE TABLE public.sales_order_customer_shipping_address (
+			CREATE TABLE public.sales_order_shipping_address (
+				shipping_address_id SERIAL PRIMARY KEY,
+				shipping_address_uuid UUID NOT NULL,
+				street_one TEXT NOT NULL,
+				street_two TEXT,
+				city TEXT NOT NULL,
+				state TEXT NOT NULL,
+				postal_code TEXT NOT NULL,
+				country TEXT NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+			
+			CREATE TABLE public.customer (
+				customer_id SERIAL PRIMARY KEY,
+				customer_uuid UUID NOT NULL,
+				full_name TEXT NOT NULL,
+				first_name TEXT NOT NULL,
+				last_name TEXT NOT NULL,
+				company TEXT,
+				phone_number TEXT,
+				email TEXT,
+				billing_address_uuid UUID NOT NULL,
+				shipping_address_uuid UUID NOT NULL,
+				is_delete BOOLEAN NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+
+			CREATE TABLE public.customer_billing_address (
+				billing_address_id SERIAL PRIMARY KEY,
+				billing_address_uuid UUID NOT NULL,
+				street_one TEXT NOT NULL,
+				street_two TEXT,
+				city TEXT NOT NULL,
+				state TEXT NOT NULL,
+				postal_code TEXT NOT NULL,
+				country TEXT NOT NULL,
+				sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, NULL)
+			);
+
+			CREATE TABLE public.customer_shipping_address (
 				shipping_address_id SERIAL PRIMARY KEY,
 				shipping_address_uuid UUID NOT NULL,
 				street_one TEXT NOT NULL,
@@ -355,7 +380,7 @@
 			);	
 		</sql>
 		
-		<comment>Create tables for sales orders, line items, customers, and addresses</comment>
+		<comment>Create test data for sales orders, line items, customers, and addresses</comment>
 		<sql>
 			INSERT INTO public.sales_order (sales_order_uuid, reference_number, sales_order_customer_uuid, business_uuid, created_at, delivery_method, is_tax_inclusive, notes, terms, shipping_charge, adjustment, adjustment_description, shipping_address_uuid, billing_address_uuid)
 			VALUES ('74a5e6e8-9f3d-44e8-973b-92e2b91eaf8b', '240511B', '63d4f1b4-12c5-49d4-9e16-74b48e5a6db7', '835b9d9e-7c42-4eaf-93f7-2b29e94b6f8b', NOW(), 'UPS', FALSE, 'This note is a test.', 'These are my terms', 500, 0, 'Test description', '57cd3d5b-3f45-4d7b-bdb1-6d8f5a5d3cbb', '91b3a2c2-0d62-49c4-bdfd-7a8f7f0e4c7d');
@@ -395,43 +420,69 @@
 			VALUES ('e5f3b1c4-45af-4ea2-a3be-fbc497c7f14e', '9d6e3a1b-12f5-4b83-b5e7-fb5a0d5f517b', '21cd8e44-6e57-4329-8d65-fb7e29e408b4', 2, 'Sample Item 8', 1050, 'Description for item 8', 22);
 
 
-			INSERT INTO public.sales_order_customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
-			VALUES ('8c2a71e5-bbf7-453b-919f-d3c6a16a2ef9', 'John Doe', 'John', 'Doe', 'Doe Enterprises', '+1 (123) 555-1234', 'john.doe@doeenterprises.com', 'f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9');
+			INSERT INTO public.customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid, is_delete)
+			VALUES ('8c2a71e5-bbf7-453b-919f-d3c6a16a2ef9', 'John Doe', 'John', 'Doe', 'Doe Enterprises', '+1 (123) 555-1234', 'john.doe@doeenterprises.com', 'f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', FALSE);
 
-			INSERT INTO public.sales_order_customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
-			VALUES ('75f8e1b1-3d6b-4482-a5b8-4d6bce847ff1', 'Jane Smith', 'Jane', 'Smith', 'Smith Solutions', '+1 (456) 555-5678', 'jane.smith@smithsolutions.com', '6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', 'edb0a1d9-76f2-47fb-95c5-9b24b25994f3');
+			INSERT INTO public.customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid, is_delete)
+			VALUES ('75f8e1b1-3d6b-4482-a5b8-4d6bce847ff1', 'Jane Smith', 'Jane', 'Smith', 'Smith Solutions', '+1 (456) 555-5678', 'jane.smith@smithsolutions.com', '6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', 'edb0a1d9-76f2-47fb-95c5-9b24b25994f3', FALSE);
 
-			INSERT INTO public.sales_order_customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
-			VALUES ('3b1c9a5f-87f7-43c5-917c-6c4d2d3b1e6e', 'Alice Johnson', 'Alice', 'Johnson', NULL, '+1 (789) 555-8765', 'alice.johnson@example.com', '4f3e72b3-6e07-4e03-9847-57c7cf9f0e57', 'a75a5627-5e3f-4e7f-a384-064e5c70f504');
+			INSERT INTO public.customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid, is_delete)
+			VALUES ('3b1c9a5f-87f7-43c5-917c-6c4d2d3b1e6e', 'Alice Johnson', 'Alice', 'Johnson', NULL, '+1 (789) 555-8765', 'alice.johnson@example.com', '4f3e72b3-6e07-4e03-9847-57c7cf9f0e57', 'a75a5627-5e3f-4e7f-a384-064e5c70f504', FALSE);
 
-			INSERT INTO public.sales_order_customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid)
-			VALUES ('8d7a4b3c-5e7f-4892-a4e1-c5d2e3b7a8f9', 'Bob Brown', 'Bob', 'Brown', 'Brown & Co.', '+1 (321) 555-4321', 'bob.brown@brownco.com', '983856b8-ebef-4c8f-a20a-13686f314f11', 'c4d0f503-019d-4984-8f3f-44aa02a6c9ec');
+			INSERT INTO public.customer (customer_uuid, full_name, first_name, last_name, company, phone_number, email, billing_address_uuid, shipping_address_uuid, is_delete)
+			VALUES ('8d7a4b3c-5e7f-4892-a4e1-c5d2e3b7a8f9', 'Bob Brown', 'Bob', 'Brown', 'Brown and Co.', '+1 (321) 555-4321', 'bob.brown@brownco.com', '983856b8-ebef-4c8f-a20a-13686f314f11', 'c4d0f503-019d-4984-8f3f-44aa02a6c9ec', FALSE);
 
 
-			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '123 Main St', NULL, 'Springfield', 'IL', '62701', 'US');
 
-			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '456 Elm St', NULL, 'Anytown', 'TX', '75001', 'US');
 
-			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('4f3e72b3-6e07-4e03-9847-57c7cf9f0e57', '789 Oak Ave', 'P.O. Box 101', 'Lakeside', 'CA', '92040', 'US');
 
-			INSERT INTO public.sales_order_customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '321 Cedar Rd', NULL, 'Portland', 'OR', '97201', 'US');
 
 
-			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '123 Main St', NULL, 'Springfield', 'IL', '62701', 'US');
 
-			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '456 Elm St', NULL, 'Anytown', 'TX', '75001', 'US');
 
-			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '789 Oak Ave', 'P.O. Box 101', 'Lakeside', 'CA', '92040', 'US');
 
-			INSERT INTO public.sales_order_customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			INSERT INTO public.sales_order_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
 			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '555 Pine Blvd', 'P.O. Box 202', 'Seattle', 'IL', '98101', 'US');
+			
+			
+			INSERT INTO public.customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '123 Main St', NULL, 'Springfield', 'IL', '62701', 'US');
+
+			INSERT INTO public.customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '456 Elm St', NULL, 'Anytown', 'TX', '75001', 'US');
+
+			INSERT INTO public.customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '678 Maple Dr', NULL, 'Boulder', 'CO', '80302', 'US');
+
+			INSERT INTO public.customer_billing_address (billing_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '910 Birch Ln', NULL, 'Miami', 'FL', '33101', 'US');
+
+
+			INSERT INTO public.customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('12f4a8b3-89f5-45b7-b2e1-c3a5f8d7e4b9', '123 Main St', NULL, 'Springfield', 'IL', '62701', 'US');
+
+			INSERT INTO public.customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('f7b2c1e5-98d6-4f8e-b5c7-e1d3f7a5c4b0', '456 Elm St', NULL, 'Anytown', 'TX', '75001', 'US');
+
+			INSERT INTO public.customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '678 Maple Dr', NULL, 'Boulder', 'CO', '80302', 'US');
+
+			INSERT INTO public.customer_shipping_address (shipping_address_uuid, street_one, street_two, city, state, postal_code, country)
+			VALUES ('6a44b0e8-26b0-4e0a-bf8e-37f2a0b9f4bc', '910 Birch Ln', NULL, 'Miami', 'FL', '33101', 'US');
 		</sql>
 		
 		<comment>Create history tables and audit triggers</comment>
@@ -450,6 +501,12 @@
         <sql>
 			CREATE TABLE audit.sales_order_history (LIKE public.sales_order);
 			CREATE TABLE audit.sales_order_line_item_history (LIKE public.sales_order_line_item);
+			CREATE TABLE audit.sales_order_billing_address (LIKE public.sales_order_billing_address);
+			CREATE TABLE audit.sales_order_shipping_address (LIKE public.sales_order_shipping_address);
+			CREATE TABLE audit.customer (LIKE public.customer);
+			CREATE TABLE audit.customer_billing_address (LIKE public.customer_billing_address);
+			CREATE TABLE audit.customer_shipping_address (LIKE public.customer_shipping_address);
+			
 			
 			CREATE TRIGGER versioning_trigger
             BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order
@@ -461,6 +518,36 @@
             BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order_line_item
             FOR EACH ROW EXECUTE PROCEDURE versioning(
             'sys_period', 'audit.sales_order_line_item_history', true
+            );
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order_billing_address
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.sales_order_billing_address_history', true
+            );
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order_shipping_address
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.sales_order_shipping_address_history', true
+            );
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.customer
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.customer_history', true
+            );
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.customer_billing_address
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.customer_billing_address_history', true
+            );
+			
+			CREATE TRIGGER versioning_trigger
+            BEFORE INSERT OR UPDATE OR DELETE ON public.customer_shipping_address
+            FOR EACH ROW EXECUTE PROCEDURE versioning(
+            'sys_period', 'audit.customer_shipping_address_history', true
             );
 		</sql>
 	</changeSet>
