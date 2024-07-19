@@ -4,13 +4,9 @@
     {
         public Address () { }
 
-        public Address(Guid addressUuid, string streetOne, string? streetTwo, string city, string state, 
+        public Address(string streetOne, string? streetTwo, string city, string state, 
             string postalCode, string country)
         {
-            if (addressUuid == Guid.Empty)
-                throw new ArgumentException("Address uuid empty", nameof(addressUuid));
-
-            AddressUuid = addressUuid;
             StreetOne = streetOne;
             StreetTwo = streetTwo;
             City = city;
@@ -19,7 +15,6 @@
             Country = country;
         }
 
-        public Guid AddressUuid { get; private set; }
         public string StreetOne { get; private set; }
         public string? StreetTwo { get; private set; }
         public string City { get; private set; }
